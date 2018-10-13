@@ -1,0 +1,101 @@
+body {
+  width: 400px;
+  padding: 1em;
+  overflow-x: hidden;
+  color: #292929;
+}
+
+.authorize-btn {
+  background: #1DB954;
+  color: #FFFFFF;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/**/
+
+.lyrics-line {
+  display: block;
+  text-align: center;
+  min-height: 10px; /* spacing between verses - normally empty row with no content */
+
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* songHeader */
+.songHeader {
+  
+}
+
+.songHeader__albumArt {
+  float: left;
+  width: 64px;
+  height: 64px;
+}
+
+.songHeader__Text {
+  margin-left: 64px; /* eq to albumArt width */
+  padding-left: 5px;
+}
+
+.songHeader__Title {
+  display: block;
+  font-size: 25px;
+}
+
+.songHeader__Artist {
+
+}
+
+/* toolbar */
+.toolbar {
+  width: 100%;
+}
+
+.toolbar__left {
+  float: left;
+}
+
+.toolbar__right {
+  float: right;
+}
+
+.toolbar_youtube {
+  background: #FF0000;
+  color: #FFFFFF;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.toolbar_btn {
+  color: white;
+  cursor: pointer;
+  display: inline-block;
+  padding: 5px;
+  margin-right: 10px;
+}
+.toolbar_g { background: #4885ed; }
+/* https://genius.com/discussions/143413-New-logo 
+   https://www.dropbox.com/s/bcpdyro4u6cf2dl/Genius_VisualIdentityGuidelines.pdf?dl=0 
+   Genius does not have branding page. How tf is it still a company?!
+*/ 
+.toolbar_genius { background: rgb(255, 255, 100); color: black; }
+.toolbar_mx { background: rgb(255, 0, 234); }

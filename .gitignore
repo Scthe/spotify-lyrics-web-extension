@@ -1,0 +1,12 @@
+# Ignore build artifacts and other files.
+.DS_Store
+yarn.lock
+extension/dist
+node_modules
+
+# some private utils etc.
+reference
+.vscode
+
+# thonk..
+src/config.js

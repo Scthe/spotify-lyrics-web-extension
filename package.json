@@ -1,0 +1,23 @@
+{
+  "name": "spotify-lyrics-web-ext",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack -w --display-error-details --progress --colors",
+    "start": "web-ext run --config=\"./web-ext.cfg.js\" --sourceDir=\"extension\""
+  },
+  "author": "",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-transform-decorators-legacy": "^1.3.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "preact": "^8.3.1",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2"
+  }
+}
