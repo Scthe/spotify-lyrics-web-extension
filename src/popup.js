@@ -5,12 +5,10 @@ import SongHeader from './SongHeader';
 import Toolbar from './Toolbar';
 
 import {withSpotify} from 'spotify/withSpotify';
-import {searchGenius} from './lyricsProvider';
+import {withLyrics} from './lyricsProvider';
 import {getYoutubeTitle} from './youtube';
 
-// TODO better handle both async
 // TODO finalize spotify
-// TODO musixmatch
 
 // TODO design
 //        - layout
@@ -18,27 +16,34 @@ import {getYoutubeTitle} from './youtube';
 //        - themes
 //        - logos
 //        - indicate YT mode
+//        - refresh btn
 
 // TODO create @withEnv that has browser object and debug flag
-// TODO hide secrets + keys
 // TODO song progress on left
 // TODO show errors (error handling)
+// TODO verify all names - package.json, manifest etc.
 
 
 @withSpotify
+@withLyrics
 class Popup extends Component {
 
   state = {
-    error: undefined,
+    // error: undefined,
+    loading: false,
     isYouTubeMode: false,
+
     youtubeSong: {
       title: undefined, // no need for more info
+      lyrics: [],
+      loading: true,
     },
     spotifySong: {
       artist: 'Salvatore ganacci',
       title: 'talk',
       albumArt: 'https://i.scdn.co/image/d49268a8fc0768084f4750cf1647709e89a27172',
-      lyrics: undefined,
+      lyrics: [],
+      loading: true,
     }
   };
 
@@ -51,42 +56,47 @@ class Popup extends Component {
     const author = song.item.artists[0].name;
     console.log(`${author}:${title}`);
     */
-    
-    this.updateYoutube();
 
-    const lyrics = await searchGenius(this.state.spotifySong);
-    this.setState(state => ({
-      spotifySong: {
-        ...state.spotifySong,
-        lyrics,
-      }
-    }));
+
+
+    const {spotifySong} = this.state;
+    this.refreshLyrics('spotifySong', spotifySong);
+
+    this.updateYoutube();
   }
 
   updateYoutube = async () => {
     const videoTitle = await getYoutubeTitle(browser);
     console.log(`Youtube song: '${videoTitle}'`);
-    this.setState({ 
-      youtubeSong: { title: videoTitle }, 
-    });
 
     if (videoTitle) {
-      const lyrics = await searchGenius({
+      this.refreshLyrics('youtubeSong', {
         artist: '',
         title: videoTitle,
       });
-      this.setState(
-        this.updateLyrics('youtubeSong', lyrics)
-      );
     }
   }
 
-  updateLyrics = (stateKey, lyrics) => state => ({
-    [stateKey]: {
-      ...state[stateKey],
-      lyrics,
-    }
-  });
+  refreshLyrics (stateKey, song) {
+    const {getLyrics} = this.props;
+
+    this.setState({
+      [stateKey]: {
+        ...song,
+        loading: true,
+      }
+    });
+
+    getLyrics(song, lyrics => {
+      this.setState(state => ({
+        [stateKey]: {
+          ...state[stateKey],
+          lyrics,
+          loading: false,
+        }
+      }));
+    });
+  }
 
   /*refreshToken = () => {
     const refreshToken = "...";
@@ -98,23 +108,29 @@ class Popup extends Component {
 
   switchYouTubeMode = () => {
     // console.log('switchYouTubeMode, now: ', this.state.isYouTubeMode)
-    this.setState(state => ({ 
-      isYouTubeMode: !state.isYouTubeMode, 
+    this.setState(state => ({
+      isYouTubeMode: !state.isYouTubeMode,
     }));
   }
 
   renderLyrics () {
     const {isYouTubeMode, spotifySong, youtubeSong} = this.state;
-    
-    const lyrics = isYouTubeMode ? youtubeSong.lyrics : spotifySong.lyrics;
-    // console.log(`render ${isYouTubeMode ? 'YT' : 'Spot'}`, this.state);
 
-    if (!lyrics || lyrics.length === 0) {
+    const lyricResults = isYouTubeMode ? youtubeSong.lyrics : spotifySong.lyrics;
+    if (lyricResults === null) {
+      return "No lyrics found";
+    }
+
+    console.log(`render lyrics ${isYouTubeMode ? 'YT' : 'Spotify'}`, lyricResults);
+    const lyrics = (lyricResults || []).find(e => e.isOk);
+
+    if (lyrics === undefined) {
       return "Loading";
     }
+
     return (
       <div class="lyrics-container">
-        {lyrics.map(line => (
+        {lyrics.lines.map(line => (
           <span class="lyrics-line">{line}</span>)
         )}
       </div>
@@ -127,7 +143,7 @@ class Popup extends Component {
 
     return (
       <div>
-        <Toolbar 
+        <Toolbar
           canYT={!!youtubeSong.title}
           onYT={this.switchYouTubeMode}
           geniusUrl={testUrl}
