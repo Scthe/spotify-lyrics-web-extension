@@ -9,7 +9,7 @@ import config from '../config';
 const authOpts = {
   clientId: config.spotify.clientId,
   clientSecret: config.spotify.clientSecret,
-  redirectUri: browser.identity.getRedirectURL(),
+  redirectUri: '', //browser.identity.getRedirectURL(),
   scope: 'user-read-currently-playing',
 };
 console.log('authOpts: ', authOpts);
@@ -31,7 +31,7 @@ export const withSpotify = ComposedComponent => {
 
     async getToken () {
       const storage = await browser.storage.local.get(STORAGE_KEY);
-      
+
       if (storage && storage[STORAGE_KEY] && storage[STORAGE_KEY].access_token) {
         console.log('Found token in storage');
         return storage[STORAGE_KEY];
@@ -46,7 +46,7 @@ export const withSpotify = ComposedComponent => {
 
     async requestToken(authOpts) {
       const respAsUrl = await getUserConsent(browser, authOpts);
-      
+
       const params = parseUrlParams(respAsUrl);
       // console.log(respAsUrl, params);
       const code = params.get('code');
@@ -56,13 +56,13 @@ export const withSpotify = ComposedComponent => {
       if (code === undefined || err !== null) {
         throw `Could not get user consent, returned error: '${err || ''}'`;
       }
-        
+
       const resp = await getAccessToken(code, authOpts);
       console.log('Resp:', resp);
       const respData = await resp.json()
       console.log('respText: ', respData);
       return respData;
-      
+
       /*respText:  {
         "access_token":"BQAnuKwFx8ueAIRk5_OU9vkysLsTitmxxeA4dmBX12YFPuI64X9WWQb6S1S0BKqTKNMB1xs7yr3QHk9_Pk3WSCImc06tHKR-fucDVJA4gFesS5ibXb3MmDXtpqjbkiUmY507wEc9fzw3wnUk-yfpgx_D",
         "token_type":"Bearer",
@@ -84,7 +84,7 @@ export const withSpotify = ComposedComponent => {
         getCurrentSong,
       };
     }
-  
+
     render() {
       return <ComposedComponent {...this.props} spotify={this.createSpotifyFacade()} />;
     }

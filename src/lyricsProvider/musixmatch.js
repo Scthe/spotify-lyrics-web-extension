@@ -1,3 +1,4 @@
+import {ICON_MUSIXMATCH} from 'components';
 import {
   searchGoogle,
   getUrlFromSearchResults,
@@ -41,6 +42,6 @@ const search = async ({artist, title}) => {
 
 export default {
   name: 'musixmatch',
-  logo: '',
+  logo: ICON_MUSIXMATCH,
   searchFn: search,
 };

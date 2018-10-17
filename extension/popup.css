@@ -1,18 +1,70 @@
+/*
+https://fonts.google.com/specimen/Montserrat
+https://fonts.google.com/specimen/Source+Sans+Pro
+https://fonts.google.com/specimen/Raleway?selection.family=Raleway
+*/
+
+/* latin-ext */
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Raleway'), local('Raleway-Regular'), url(https://fonts.gstatic.com/s/raleway/v12/1Ptug8zYS_SKggPNyCMIT5lu.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Raleway'), local('Raleway-Regular'), url(https://fonts.gstatic.com/s/raleway/v12/1Ptug8zYS_SKggPNyC0ITw.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+ * normalize
+ */
+
+* {
+  /* feelsgoodman */
+  box-sizing: border-box;
+}
+
+html {
+  line-height: 1.15; /* 1 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+
+h1, h2, h3, h4 { margin: 0; }
+h1 { font-size: 2em; }
+
 body {
   width: 400px;
   padding: 1em;
   overflow-x: hidden;
-  color: #292929;
+  margin: 0;
+  padding: 0;
+  font-family: 'Raleway', sans-serif;
 }
 
-.authorize-btn {
-  background: #1DB954;
-  color: #FFFFFF;
-  padding: 10px;
-  text-align: center;
-  cursor: pointer;
+button {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
+  overflow: visible;
+  text-transform: none;
 }
 
+
+.app {
+  color: hsl(0, 0%, 90%);
+  background-color: hsl(0, 0%, 10%);
+}
+
+/*
+ * utils
+ */
 .clearfix:after {
   content: "";
   display: table;
@@ -25,12 +77,21 @@ body {
   text-overflow: ellipsis;
 }
 
-/**/
+/*
+ * lyrics
+ */
+
+.lyrics-viewer {
+  padding: 10px;
+  margin-top: 5px;
+  font-size: 0.9rem;
+}
 
 .lyrics-line {
   display: block;
   text-align: center;
-  min-height: 10px; /* spacing between verses - normally empty row with no content */
+  /* spacing between verses - normally empty row with no content */
+  min-height: 0.9rem;
 
   -moz-user-select: text;
   -khtml-user-select: text;
@@ -39,10 +100,10 @@ body {
   user-select: text;
 }
 
-/* songHeader */
-.songHeader {
-  
-}
+/*
+ * songHeader
+ */
+.songHeader {}
 
 .songHeader__albumArt {
   float: left;
@@ -58,15 +119,21 @@ body {
 .songHeader__Title {
   display: block;
   font-size: 25px;
+  padding-top: 5px;
 }
 
 .songHeader__Artist {
-
+  padding-top: 6px;
 }
 
-/* toolbar */
+/*
+ * toolbar
+ */
 .toolbar {
   width: 100%;
+  padding: 5px;
+  background-color: hsl(0, 0%, 16%);
+  border-bottom: 1px solid #353535;
 }
 
 .toolbar__left {
@@ -77,25 +144,33 @@ body {
   float: right;
 }
 
-.toolbar_youtube {
-  background: #FF0000;
-  color: #FFFFFF;
-  padding: 5px;
+.toolbar_btn {
+  padding: 3px;
+  width: 25px;
+  height: 25px;
+  display: inline-block;
+  margin-left: 10px;
+  border-radius: 3px;
   cursor: pointer;
-  border-radius: 5px;
+  transition: filter 0.3s;
+}
+.toolbar_active   { opacity: 1.0; }
+.toolbar_inactive { opacity: 0.6; }
+.toolbar_btn:hover:not(.toolbar_active) {
+  opacity: 0.9;
 }
 
-.toolbar_btn {
-  color: white;
-  cursor: pointer;
-  display: inline-block;
-  padding: 5px;
-  margin-right: 10px;
+.toolbar_btn:first-child {
+  margin-left: 0px;
 }
-.toolbar_g { background: #4885ed; }
-/* https://genius.com/discussions/143413-New-logo 
-   https://www.dropbox.com/s/bcpdyro4u6cf2dl/Genius_VisualIdentityGuidelines.pdf?dl=0 
+
+/* https://genius.com/discussions/143413-New-logo
+   https://www.dropbox.com/s/bcpdyro4u6cf2dl/Genius_VisualIdentityGuidelines.pdf?dl=0
    Genius does not have branding page. How tf is it still a company?!
-*/ 
+*/
+.toolbar_btn.toolbar_youtube { max-height: 25px; padding: 0; }
+.toolbar_btn.toolbar_youtube svg { height: 25px; }
+.toolbar_google { background: #4885ed; }
+.toolbar_google svg { fill: white; }
 .toolbar_genius { background: rgb(255, 255, 100); color: black; }
-.toolbar_mx { background: rgb(255, 0, 234); }
+.toolbar_musixmatch { background: white; }

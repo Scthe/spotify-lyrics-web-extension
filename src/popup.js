@@ -1,22 +1,24 @@
 import { h, render, Component } from 'preact';
 /** @jsx h */
 
-import SongHeader from './SongHeader';
-import Toolbar from './Toolbar';
+import {SongHeader, Toolbar, LyricsViewer} from './components';
 
 import {withSpotify} from 'spotify/withSpotify';
 import {withLyrics} from './lyricsProvider';
+import {createGoogleSearchUrl} from './lyricsProvider/_utils';
 import {getYoutubeTitle} from './youtube';
 
 // TODO finalize spotify
 
 // TODO design
-//        - layout
-//        - font
-//        - themes
-//        - logos
-//        - indicate YT mode
-//        - refresh btn
+//        | layout
+//        | font
+//        | logos
+//        | icon
+//        - indicate YT mode - change album art
+//        - refresh button
+//        - small titles as tooltips
+//        - per-provider urls
 
 // TODO create @withEnv that has browser object and debug flag
 // TODO song progress on left
@@ -29,21 +31,17 @@ import {getYoutubeTitle} from './youtube';
 class Popup extends Component {
 
   state = {
-    // error: undefined,
-    loading: false,
     isYouTubeMode: false,
-
+    currentProvider: 'genius', // current lyrics provider
     youtubeSong: {
       title: undefined, // no need for more info
-      lyrics: [],
-      loading: true,
+      lyricsResults: [],
     },
     spotifySong: {
       artist: 'Salvatore ganacci',
       title: 'talk',
       albumArt: 'https://i.scdn.co/image/d49268a8fc0768084f4750cf1647709e89a27172',
-      lyrics: [],
-      loading: true,
+      lyricsResults: [],
     }
   };
 
@@ -58,11 +56,12 @@ class Popup extends Component {
     */
 
 
-
+    /*
     const {spotifySong} = this.state;
     this.refreshLyrics('spotifySong', spotifySong);
 
     this.updateYoutube();
+    */
   }
 
   updateYoutube = async () => {
@@ -83,20 +82,33 @@ class Popup extends Component {
     this.setState({
       [stateKey]: {
         ...song,
-        loading: true,
+        // loading: true,
       }
     });
 
-    getLyrics(song, lyrics => {
-      this.setState(state => ({
-        [stateKey]: {
-          ...state[stateKey],
-          lyrics,
-          loading: false,
-        }
-      }));
-    });
+    const cb = this.onLyricsDownloaded(stateKey);
+    getLyrics(song, cb);
   }
+
+  onLyricsDownloaded = stateKey => (provider, result) => {
+    this.setState(state => {
+      const prevState = state[stateKey];
+      const newLyrics = [
+        ...prevState.lyricsResults,
+        { name: provider, ...result },
+      ];
+      const finishedAsFirst = prevState.lyricsResults.length === 0;
+
+      return {
+        currentProvider: finishedAsFirst ? provider : state.currentProvider,
+        [stateKey]: {
+          ...prevState,
+          // loading: false,
+          lyricsResults: newLyrics,
+        }
+      };
+    });
+  };
 
   /*refreshToken = () => {
     const refreshToken = "...";
@@ -106,52 +118,62 @@ class Popup extends Component {
     console.log('respText: ', respData);
   }*/
 
-  switchYouTubeMode = () => {
-    // console.log('switchYouTubeMode, now: ', this.state.isYouTubeMode)
+  onSwitchYouTubeMode = () => {
     this.setState(state => ({
       isYouTubeMode: !state.isYouTubeMode,
     }));
   }
 
-  renderLyrics () {
+  onProviderSwitch = provider => {
+    this.setState({
+      currentProvider: provider,
+    });
+  }
+
+  getCurrentSong () {
     const {isYouTubeMode, spotifySong, youtubeSong} = this.state;
+    return isYouTubeMode ? youtubeSong : spotifySong;
+  }
 
-    const lyricResults = isYouTubeMode ? youtubeSong.lyrics : spotifySong.lyrics;
-    if (lyricResults === null) {
-      return "No lyrics found";
-    }
+  getCurrentLyrics (providerName) {
+    const song = this.getCurrentSong();
+    return song.lyricsResults.find(e => e.name === providerName);
+  }
 
-    console.log(`render lyrics ${isYouTubeMode ? 'YT' : 'Spotify'}`, lyricResults);
-    const lyrics = (lyricResults || []).find(e => e.isOk);
+  createToolbarProps () {
+    const {isYouTubeMode, currentProvider} = this.state;
+    const {lyricsProviders} = this.props;
+    const song = this.getCurrentSong();
 
-    if (lyrics === undefined) {
-      return "Loading";
-    }
+    const mergeSongState = provider => ({
+      ...provider,
+      perSong: this.getCurrentLyrics(provider),
+    });
 
-    return (
-      <div class="lyrics-container">
-        {lyrics.lines.map(line => (
-          <span class="lyrics-line">{line}</span>)
-        )}
-      </div>
-    );
+    return {
+      googleUrl: createGoogleSearchUrl([
+        song.artist, song.title, 'lyrics'
+      ]),
+      ytSettings: {
+        onClick: this.onSwitchYouTubeMode,
+        isVisible: true, // !!youtubeSong.title}
+        active: isYouTubeMode,
+      },
+      currentProvider,
+      onProviderSwitch: this.onProviderSwitch,
+      providers: lyricsProviders.map(mergeSongState),
+    };
   }
 
   render() {
-    const {spotifySong, youtubeSong} = this.state;
-    const testUrl = "https://genius.com/Salvatore-ganacci-talk-lyrics";
+    const {spotifySong, youtubeSong, currentProvider} = this.state;
+
 
     return (
       <div>
-        <Toolbar
-          canYT={!!youtubeSong.title}
-          onYT={this.switchYouTubeMode}
-          geniusUrl={testUrl}
-          mxUrl={testUrl}
-          googleUrl={testUrl}
-        />
+        <Toolbar {...this.createToolbarProps()} />
         <SongHeader {...spotifySong} />
-        {this.renderLyrics()}
+        <LyricsViewer lyrics={this.getCurrentLyrics(currentProvider)} />
       </div>
     );
   }

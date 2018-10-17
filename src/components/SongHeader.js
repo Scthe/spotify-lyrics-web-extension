@@ -1,7 +1,7 @@
 import { h, Component } from 'preact';
 /** @jsx h */
 
-export default class SongHeader extends Component {
+export class SongHeader extends Component {
 
   render ({artist, title, albumArt}) {
     return (

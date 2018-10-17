@@ -34,26 +34,9 @@ export const withLyrics = ComposedComponent => {
     }
 
     getLyrics = (song, cb) => {
-      let cache = [];
-      let atLeastOneOk = false;
-
-      const lyricsPromises = this.providers.map(async provider => {
+      this.providers.map(async provider => {
         const res = await this.executeLyricsProvider(provider, song);
-        // console.log("resolved lyrics for", song, res);
-        cache = [
-          ...cache,
-          {name: provider.name, ...res}
-        ];
-        cb(cache);
-        atLeastOneOk = atLeastOneOk || res.isOk;
-      });
-
-      // if all promises finished with error, then error out
-      // (this registers callback, does not use await!)
-      Promise.all(lyricsPromises).then(() => {
-        if (!atLeastOneOk) {
-          cb(null);
-        }
+        cb(provider.name, res);
       });
     };
 

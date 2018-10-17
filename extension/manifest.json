@@ -5,8 +5,8 @@
   "version": "1.0",
   "homepage_url": "https://github.com/mdn/webextensions-examples/tree/master/http-response",
   "icons": {
-    "48": "images/Watermelon-48.png",
-    "96": "images/Watermelon-96.png"
+    "48": "images/icon-48.png",
+    "96": "images/icon-96.png"
   },
 
   "content_security_policy": "script-src 'self' https://accounts.spotify.com; object-src 'self'",
@@ -15,8 +15,8 @@
   "browser_action": {
     "browser_style": true,
     "default_icon": {
-      "48": "images/Watermelon-48.png",
-      "96": "images/Watermelon-96.png"
+      "48": "images/icon-48.png",
+      "96": "images/icon-96.png"
     },
     "default_title": "React Example",
     "default_popup": "popup.html"
@@ -30,7 +30,7 @@
   },
 
   "permissions": [
-    "activeTab", 
+    "activeTab",
     "identity",
     "storage",
     "*://accounts.spotify.com/*",

@@ -10,11 +10,14 @@ export const fetchTextOrThrow = async (url, exMsg) => {
   return resp.text();
 }
 
+export const createGoogleSearchUrl = phraseArr => {
+  const phrase = phraseArr.join(' ');
+  return `https://www.google.com/search?q=${phrase}`;
+}
 
 export const searchGoogle = (phraseArr, exMsg) => {
-  const phrase = phraseArr.join(' ');
   // console.log(`Google search for '${phrase}'`);
-  return fetchTextOrThrow(`http://www.google.com/search?q=${phrase}`, exMsg);
+  return fetchTextOrThrow(createGoogleSearchUrl(phraseArr), exMsg);
 };
 
 //////////////////////

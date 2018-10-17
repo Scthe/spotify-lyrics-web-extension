@@ -1,3 +1,4 @@
+import {ICON_GENIUS} from 'components';
 import {
   searchGoogle,
   getUrlFromSearchResults,
@@ -42,6 +43,6 @@ const search = async ({artist, title}) => {
 
 export default {
   name: 'genius',
-  logo: '',
+  logo: ICON_GENIUS,
   searchFn: search,
 };

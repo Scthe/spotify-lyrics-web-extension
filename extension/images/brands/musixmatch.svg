@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 512 512"
+   id="svg3013"
+   height="512"
+   width="512"
+   version="1.1">
+  <defs
+     id="defs3019">
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient-1"
+       y2="470.33594"
+       x2="238.5"
+       y1="-1.9698275e-029"
+       x1="238.5">
+      <stop
+         offset="0"
+         style="stop-color:#ff6633;stop-opacity:1"
+         id="stop3022" />
+      <stop
+         offset="1"
+         style="stop-color:#ff0e83;stop-opacity:1"
+         id="stop3024" />
+    </linearGradient>
+  </defs>
+  <g
+     style="fill:none;stroke:none"
+     id="MXM-Logos"
+     transform="matrix(1.0733753,0,0,1.0733753,-230.77568,-93.383648)">
+    <g
+       id="Mark-with-Circle-Shape-on-light">
+      <g
+         id="Oval-1-+-MXM-LOGO"
+         transform="translate(215,87)">
+        <circle
+           style="fill:url(#linearGradient-1)"
+           id="Oval-1"
+           r="238.5"
+           cy="238.5"
+           cx="238.5" />
+        <g
+           style="fill:#ffffff"
+           id="MXM-LOGO"
+           transform="translate(111,120)">
+          <path
+             style="fill-opacity:0.7"
+             id="Imported-Layers"
+             d="M 212.82199,6.4290322 127.73276,72.127282 C 127.48851,72.315872 127,72.693051 127,72.693051 L 40.374965,7.0050309 C 35.600062,3.297724 30.042396,1.6321462 24.608527,1.6315987 11.984092,1.6299561 0.01807638,10.616521 0.01807638,23.864489 v 49.81567 L 0,221.76656 C 0,235.01344 11.967112,244 24.590451,244 c 5.434965,0 10.990987,-1.66558 15.766438,-5.37398 L 127,172.36255 c 43.11162,33.47444 85.80391,66.26347 85.80391,66.26347 C 217.57882,242.33333 223.13703,244 228.57035,244 241.19533,244 254,235.01454 254,221.76657 V 73.680157 22.858303 C 254,9.611429 241.21177,1.0556001 228.58843,1.0556001 c -5.43497,0 -10.99099,1.6655778 -15.76644,5.3734321 z" />
+          <polygon
+             style="fill-opacity:0.59999994"
+             id="Fill-3-Copy"
+             points="127,172.36255 190.16627,122.61129 127,72.693051 63.42741,122.62482 " />
+          <polyline
+             style="fill-opacity:0.59999994"
+             points="0.0308615066 73.5032949 0.0308615066 171.746809 63.4274099 122.624819 0.0308615066 73.5032949"
+             id="Fill-4-Copy" />
+          <polyline
+             style="fill-opacity:0.59999994"
+             points="190.166265 122.611293 253.999999 172.362549 253.999999 72.6930513 190.166265 122.611293"
+             id="Fill-5-Copy" />
+          <path
+             id="Fill-6-Copy"
+             d="M 211.66667,7.2849436 127,72.693054 190.16626,122.61083 254,72.693054 V 22.858303 C 254,3.9215303 229.80952,-8.2884152 211.66667,7.2849436 Z" />
+          <path
+             id="Fill-7-Copy"
+             d="M 40.461773,6.6152249 C 24.571838,-5.6971053 0.04863025,4.5266343 0.04863025,23.463407 V 73.503295 L 63.42741,122.62482 127.00001,72.693049 Z" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
