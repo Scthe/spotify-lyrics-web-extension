@@ -41,13 +41,16 @@ export const withLyrics = ComposedComponent => {
     };
 
     executeLyricsProvider = async (provider, song) => {
-      const result = { isOk: false, };
+      let result;
       try {
-        result.lines = await provider.searchFn(song);
-        result.isOk = true;
+        result = {
+          ...await provider.searchFn(song),
+          isOk: true,
+        };
       } catch (err) {
-        result.error = err;
-        result.isOk = false;
+        result = {
+          error: err, isOk: false,
+        };
       }
 
       return result;

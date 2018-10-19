@@ -1,5 +1,6 @@
 import { h, Component } from 'preact';
 /** @jsx h */
+import {Loader} from './index';
 
 const lyricsMock = {
   lines: [
@@ -23,14 +24,25 @@ export class LyricsViewer extends Component {
     /*
     const { lyrics} = this.props;
     if (lyrics === undefined) {
-      return "Loading";
-    }
+      return (
+        <div class="lyrics-viewer--loading">
+          <Loader />
+        </div>
+      );
+    }*/
 
+    /*
     if (!lyrics.isOk || !!lyrics.error) {
       const err = lyrics.error || 'Unexpected error';
-      return err;
-    }
-    */
+      const err = 'Unexpected error';
+      const err = 'Unexpected error asd asd sad sad sad as asd sadasdh jashjkd hjkasdjk asjkd hjkashjkd s';
+      return (
+        <div class="lyrics-viewer--err">
+          <span class="lyrics-viewer--err-msg">{err}</span>
+        </div>
+      );
+    }*/
+
 
     return (
       <div class="lyrics-viewer">

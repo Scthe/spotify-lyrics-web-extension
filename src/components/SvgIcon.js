@@ -12,11 +12,12 @@ export class SvgIcon extends Component {
     this.base.innerHTML = this.props.svg;
   }
 
-  render ({className, onClick}) {
+  render ({className, onClick, tooltip}) {
     return (
       <div
         class={`SvgIcon ${className || ''}`}
         onClick={onClick}
+        title={tooltip}
       />
     );
   }

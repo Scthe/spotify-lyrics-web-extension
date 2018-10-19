@@ -8,6 +8,12 @@ import {
 } from './_utils';
 
 
+const createSearchUrl = ({artist, title}) => {
+  const q1 =`${artist} ${title}`.trim();
+  const query = encodeURIComponent(q1);
+  return `https://www.musixmatch.com/search/${query}`;
+}
+
 // NOTE: we use \S\s as substitute for /s (dotall flag)
 // https://stackoverflow.com/questions/1068280/javascript-regex-multiline-flag-doesnt-work
 const WRAPPER_REGEX = /<p class="mxm-lyrics__content ">([.\S\s]*?)<\/p>/gm;
@@ -37,11 +43,15 @@ const search = async ({artist, title}) => {
   // console.log('[mm]', rawText);
 
   const rawLines = rawText.split('\n');
-  return rawLines.map(cleanupLine);
+  return {
+    lines: rawLines.map(cleanupLine),
+    url: pageUrl,
+  };
 };
 
 export default {
   name: 'musixmatch',
   logo: ICON_MUSIXMATCH,
   searchFn: search,
+  createSearchUrl,
 };

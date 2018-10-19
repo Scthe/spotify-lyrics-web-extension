@@ -9,7 +9,7 @@ https://fonts.google.com/specimen/Raleway?selection.family=Raleway
   font-family: 'Raleway';
   font-style: normal;
   font-weight: 400;
-  src: local('Raleway'), local('Raleway-Regular'), url(https://fonts.gstatic.com/s/raleway/v12/1Ptug8zYS_SKggPNyCMIT5lu.woff2) format('woff2');
+  src: local('Raleway'), local('Raleway-Regular'), url(fonts/Raleway-ext.woff2) format('woff2');
   unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 /* latin */
@@ -17,7 +17,7 @@ https://fonts.google.com/specimen/Raleway?selection.family=Raleway
   font-family: 'Raleway';
   font-style: normal;
   font-weight: 400;
-  src: local('Raleway'), local('Raleway-Regular'), url(https://fonts.gstatic.com/s/raleway/v12/1Ptug8zYS_SKggPNyC0ITw.woff2) format('woff2');
+  src: local('Raleway'), local('Raleway-Regular'), url(fonts/Raleway.woff2) format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -87,6 +87,23 @@ button {
   font-size: 0.9rem;
 }
 
+.lyrics-viewer--loading {
+  height: 200px;
+  padding: 65px 150px;
+}
+
+.lyrics-viewer--err {
+  text-align: center;
+  line-height: 200px;
+  padding: 0 50px;
+}
+
+.lyrics-viewer--err-msg {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: normal;
+}
+
 .lyrics-line {
   display: block;
   text-align: center;
@@ -110,6 +127,9 @@ button {
   width: 64px;
   height: 64px;
 }
+.songHeader__loader { padding: 10px; }
+
+.songHeader__albumArt_youTube { padding-top: 10px; }
 
 .songHeader__Text {
   margin-left: 64px; /* eq to albumArt width */
@@ -121,17 +141,19 @@ button {
   font-size: 25px;
   padding-top: 5px;
 }
+.songHeader-yt .songHeader__Title { font-size: 15px; padding-top: 24px; }
 
 .songHeader__Artist {
   padding-top: 6px;
 }
+.songHeader-yt .songHeader__Artist { display: none; }
 
 /*
  * toolbar
  */
 .toolbar {
   width: 100%;
-  padding: 5px;
+  padding: 5px 5px 2px 5px;
   background-color: hsl(0, 0%, 16%);
   border-bottom: 1px solid #353535;
 }
@@ -152,7 +174,7 @@ button {
   margin-left: 10px;
   border-radius: 3px;
   cursor: pointer;
-  transition: filter 0.3s;
+  transition: opacity 0.3s;
 }
 .toolbar_active   { opacity: 1.0; }
 .toolbar_inactive { opacity: 0.6; }
@@ -174,3 +196,55 @@ button {
 .toolbar_google svg { fill: white; }
 .toolbar_genius { background: rgb(255, 255, 100); color: black; }
 .toolbar_musixmatch { background: white; }
+
+/*
+ * loader
+ */
+.loader {
+	position: relative;
+	display: grid;
+	grid-template-columns: 33% 33% 33%;
+	grid-gap: 2px;
+	width: 100%;
+  height: 100%;
+}
+
+.loader > div {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  background: hsl(0, 0%, 90%);
+  transform: scale(0.0);
+  transform-origin: center center;
+  animation: loader 1.5s infinite linear;
+}
+
+.loader > div:nth-of-type(7) {}
+
+.loader > div:nth-of-type(1),
+.loader > div:nth-of-type(5),
+.loader > div:nth-of-type(9) {
+  animation-delay: 0.4s;
+}
+
+.loader > div:nth-of-type(4),
+.loader > div:nth-of-type(8) {
+  animation-delay: 0.2s;
+}
+
+.loader > div:nth-of-type(2),
+.loader > div:nth-of-type(6) {
+  animation-delay: 0.6s;
+}
+
+.loader > div:nth-of-type(3) {
+  animation-delay: 0.8s;
+}
+
+@keyframes loader {
+	0%   { transform: scale(0.0); }
+	40%  { transform: scale(1.0); }
+	80%  { transform: scale(1.0); }
+	100% { transform: scale(0.0); }
+}

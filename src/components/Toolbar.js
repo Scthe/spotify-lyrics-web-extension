@@ -8,7 +8,7 @@ import { h, Component } from 'preact';
 
 import {SvgIcon, ICON_GOOGLE_G, ICON_YOUTUBE} from './index';
 
-const ToolbarBtn = ({logo, className, active, onClick}) => {
+const ToolbarBtn = ({logo, className, active, onClick, tooltip}) => {
   const classes = [
     'toolbar_btn',
     className,
@@ -16,7 +16,12 @@ const ToolbarBtn = ({logo, className, active, onClick}) => {
   ].join(' ');
 
   return (
-    <SvgIcon svg={logo} className={classes} onClick={onClick} />
+    <SvgIcon
+      tooltip={tooltip}
+      className={classes}
+      svg={logo}
+      onClick={onClick}
+    />
   );
 };
 
@@ -24,6 +29,7 @@ const ToolbarBtn = ({logo, className, active, onClick}) => {
 export class Toolbar extends Component {
 
   openTab = url => {
+    // console.log(`open-tab '${url}'`);
     browser.tabs.create({
       url,
     });
@@ -35,7 +41,7 @@ export class Toolbar extends Component {
 
     const onClick = () => {
       if (isActive) {
-        this.openTab('www.example.com');
+        this.openTab(provider.url);
       } else {
         onProviderSwitch(provider.name);
       }
@@ -43,6 +49,7 @@ export class Toolbar extends Component {
 
     return (
       <ToolbarBtn
+        tooltip={provider.name}
         logo={provider.logo}
         className={`toolbar_${provider.name}`}
         active={isActive}
@@ -56,6 +63,7 @@ export class Toolbar extends Component {
 
     return isVisible ? (
       <ToolbarBtn
+        tooltip='Toggle YouTube mode'
         logo={ICON_YOUTUBE}
         className='toolbar_youtube'
         active={active}
@@ -77,6 +85,7 @@ export class Toolbar extends Component {
         </div>
         <div class="toolbar__right">
           <ToolbarBtn
+            tooltip='Google for lyrics'
             logo={ICON_GOOGLE_G}
             className='toolbar_google'
             active={true}

@@ -8,23 +8,18 @@ import {withLyrics} from './lyricsProvider';
 import {createGoogleSearchUrl} from './lyricsProvider/_utils';
 import {getYoutubeTitle} from './youtube';
 
+
 // TODO finalize spotify
-
-// TODO design
-//        | layout
-//        | font
-//        | logos
-//        | icon
-//        - indicate YT mode - change album art
-//        - refresh button
-//        - small titles as tooltips
-//        - per-provider urls
-
-// TODO create @withEnv that has browser object and debug flag
-// TODO song progress on left
-// TODO show errors (error handling)
+// TODO create @withEnv that has browser object and debug flag (or use polyfill)
 // TODO verify all names - package.json, manifest etc.
 
+// TODO ? song progress on left
+
+
+const updateConditionaly = (baseObj, cond, extObj) => {
+  extObj = cond ? cond : {};
+  return { ...baseObj, ...extObj };
+};
 
 @withSpotify
 @withLyrics
@@ -34,7 +29,9 @@ class Popup extends Component {
     isYouTubeMode: false,
     currentProvider: 'genius', // current lyrics provider
     youtubeSong: {
+      artist: '', // will never change
       title: undefined, // no need for more info
+      albumArt: null, // show youtube logo instead
       lyricsResults: [],
     },
     spotifySong: {
@@ -56,12 +53,10 @@ class Popup extends Component {
     */
 
 
-    /*
     const {spotifySong} = this.state;
     this.refreshLyrics('spotifySong', spotifySong);
 
     this.updateYoutube();
-    */
   }
 
   updateYoutube = async () => {
@@ -76,38 +71,46 @@ class Popup extends Component {
     }
   }
 
-  refreshLyrics (stateKey, song) {
-    const {getLyrics} = this.props;
+  static createLyricsState = songBase => provider => ({
+    name: provider.name,
+    url: provider.createSearchUrl(songBase),
+    lines: undefined,
+    error: undefined,
+  });
+
+  refreshLyrics (stateKey, songBase) {
+    const {getLyrics, lyricsProviders} = this.props;
 
     this.setState({
       [stateKey]: {
-        ...song,
-        // loading: true,
+        ...songBase,
+        lyricsResults: lyricsProviders.map(Popup.createLyricsState(songBase)),
       }
     });
 
     const cb = this.onLyricsDownloaded(stateKey);
-    getLyrics(song, cb);
+    getLyrics(songBase, cb);
   }
 
-  onLyricsDownloaded = stateKey => (provider, result) => {
-    this.setState(state => {
-      const prevState = state[stateKey];
-      const newLyrics = [
-        ...prevState.lyricsResults,
-        { name: provider, ...result },
-      ];
-      const finishedAsFirst = prevState.lyricsResults.length === 0;
+  onLyricsDownloaded = stateKey => (providerName, result) => {
+    const updateState = state => {
+      const prevSong = state[stateKey];
+      const finishedAsFirst = prevSong.lyricsResults.length === 0;
+
+      const newSong = {
+        ...prevSong,
+        lyricsResults: prevSong.lyricsResults.map(p =>
+          updateConditionaly(p, p.name === providerName, result)
+        ),
+      };
+      // console.log(`new song for [${providerName}]`, newSong);
 
       return {
-        currentProvider: finishedAsFirst ? provider : state.currentProvider,
-        [stateKey]: {
-          ...prevState,
-          // loading: false,
-          lyricsResults: newLyrics,
-        }
+        currentProvider: finishedAsFirst ? providerName : state.currentProvider,
+        [stateKey]: newSong,
       };
-    });
+    };
+    this.setState(updateState);
   };
 
   /*refreshToken = () => {
@@ -141,13 +144,13 @@ class Popup extends Component {
   }
 
   createToolbarProps () {
-    const {isYouTubeMode, currentProvider} = this.state;
+    const {isYouTubeMode, youtubeSong, currentProvider} = this.state;
     const {lyricsProviders} = this.props;
     const song = this.getCurrentSong();
 
     const mergeSongState = provider => ({
       ...provider,
-      perSong: this.getCurrentLyrics(provider),
+      ...this.getCurrentLyrics(provider.name),
     });
 
     return {
@@ -156,7 +159,7 @@ class Popup extends Component {
       ]),
       ytSettings: {
         onClick: this.onSwitchYouTubeMode,
-        isVisible: true, // !!youtubeSong.title}
+        isVisible: !!youtubeSong.title,
         active: isYouTubeMode,
       },
       currentProvider,
@@ -166,13 +169,19 @@ class Popup extends Component {
   }
 
   render() {
-    const {spotifySong, youtubeSong, currentProvider} = this.state;
-
+    const {currentProvider, isYouTubeMode} = this.state;
+    const song = this.getCurrentSong();
 
     return (
       <div>
         <Toolbar {...this.createToolbarProps()} />
-        <SongHeader {...spotifySong} />
+        <SongHeader
+          artist={song.artist}
+          title={song.title}
+          albumArt={song.albumArt}
+          hasAnyResults={song.lyricsResults.length > 0}
+          isYouTubeMode={isYouTubeMode}
+        />
         <LyricsViewer lyrics={this.getCurrentLyrics(currentProvider)} />
       </div>
     );
