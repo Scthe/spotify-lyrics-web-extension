@@ -84,7 +84,10 @@ button {
 .lyrics-viewer {
   padding: 10px;
   margin-top: 5px;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
+  overflow-y: auto;
+  max-height: 300px;
+  line-height: 1.4rem;
 }
 
 .lyrics-viewer--loading {
@@ -116,6 +119,7 @@ button {
   -ms-user-select: text;
   user-select: text;
 }
+.lyrics-line:last-child { margin-bottom: 10px; }
 
 /*
  * songHeader

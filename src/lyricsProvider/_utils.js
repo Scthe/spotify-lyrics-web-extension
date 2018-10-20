@@ -21,6 +21,8 @@ export const searchGoogle = (phraseArr, exMsg) => {
   return fetchTextOrThrow(createGoogleSearchUrl(phraseArr), exMsg);
 };
 
+
+
 //////////////////////
 /// regex
 //////////////////////
@@ -37,10 +39,10 @@ const matchAll = (regex, text) => {
 export const regexMatchOrThrow = (regex, text, exMsg) => {
   const res = matchAll(regex, text);
 
-  if (res.length === 0) {
+  if (res === null || res.length === 0) {
     throw exMsg;
   }
-  // console.log('[regexMatchOrThrow]', res);
+
   return res;
 }
 

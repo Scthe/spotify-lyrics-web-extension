@@ -29,7 +29,6 @@ const search = async ({artist, title}) => {
     googleHtml, 'www.musixmatch.com',
     `No musixmatch page found for ${artist} - ${title}`
   )[0];
-  // console.log('pageUrl', pageUrl);
 
   const html = await fetchTextOrThrow(
     pageUrl,
@@ -40,7 +39,6 @@ const search = async ({artist, title}) => {
     WRAPPER_REGEX, html,
     `Could not parse musixmatch page for lyrics for ${artist} - ${title} (${pageUrl})`
   ).join('\n');
-  // console.log('[mm]', rawText);
 
   const rawLines = rawText.split('\n');
   return {

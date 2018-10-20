@@ -1,5 +1,9 @@
 // https://developer.spotify.com/documentation/general/guides/authorization-guide/
 
+/*
+ * Oauth step 1
+ */
+
 const constructAuthCodeUrl = ({clientId, scope, redirectUri}) => {
   return [
     'https://accounts.spotify.com/authorize',
@@ -18,6 +22,11 @@ export const getUserConsent = (browser, opts) => {
   })
 };
 
+
+/*
+ * Oauth step 2
+ */
+
 /** Convert js object to 'a=1&b=2&...'  */
 const bodyToFormUrlEncoded = bodyObj => {
   const sp = new URLSearchParams(bodyObj);
@@ -35,7 +44,7 @@ export const getAccessToken = (code, {clientId, clientSecret, redirectUri}) => {
   };
 
   return fetch("https://accounts.spotify.com/api/token", {
-    method: 'POST', 
+    method: 'POST',
     headers: new Headers({
       // Authorization: 'Basic ' + btoa(`${clientId}:${clientSecret}`), // or provide in body
       'Content-Type': 'application/x-www-form-urlencoded', // NOTE: important
@@ -43,3 +52,18 @@ export const getAccessToken = (code, {clientId, clientSecret, redirectUri}) => {
     body: bodyToFormUrlEncoded(body),
   });
 };
+
+
+/*
+ * Oauth other
+ */
+
+/*
+refreshToken = () => {
+  const refreshToken = "...";
+  const resp = await getAccessToken(refreshToken, authOpts);
+  console.log('Resp:', resp);
+  const respData = await resp.json()
+  console.log('respText: ', respData);
+}
+*/

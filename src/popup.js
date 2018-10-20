@@ -17,7 +17,7 @@ import {getYoutubeTitle} from './youtube';
 
 
 const updateConditionaly = (baseObj, cond, extObj) => {
-  extObj = cond ? cond : {};
+  extObj = cond ? extObj : {};
   return { ...baseObj, ...extObj };
 };
 
@@ -35,33 +35,43 @@ class Popup extends Component {
       lyricsResults: [],
     },
     spotifySong: {
-      artist: 'Salvatore ganacci',
-      title: 'talk',
-      albumArt: 'https://i.scdn.co/image/d49268a8fc0768084f4750cf1647709e89a27172',
+      artist: undefined,
+      title: undefined,
+      albumArt: undefined,
       lyricsResults: [],
     }
   };
 
   async componentDidMount() {
-    /*
-    const {spotify} = this.props;
-    const song = await spotify.getCurrentSong();
-    // console.log(song);
-    const title = song.item.name;
-    const author = song.item.artists[0].name;
-    console.log(`${author}:${title}`);
-    */
-
-
-    const {spotifySong} = this.state;
-    this.refreshLyrics('spotifySong', spotifySong);
-
+    this.updateSpotify();
     this.updateYoutube();
+  }
+
+  updateSpotify = async () => {
+    const {spotify} = this.props;
+    const { result: song, error } = await spotify.getCurrentSong(); // TODO handle errors
+    console.log('[spotify] song:', {song, error});
+    if (error) {
+      this.setState({
+        spotifySong: {
+          ...this.state.spotifySong,
+          artist: `ERR: ${error}`,
+        }
+      });
+      return;
+    }
+
+    const {name, artists, album} = song.item;
+    this.refreshLyrics('spotifySong', {
+      title: name,
+      artist: artists[0].name,
+      albumArt: album.images[album.images.length - 1].url,
+    });
   }
 
   updateYoutube = async () => {
     const videoTitle = await getYoutubeTitle(browser);
-    console.log(`Youtube song: '${videoTitle}'`);
+    console.log(`[youtube] song: '${videoTitle}'`);
 
     if (videoTitle) {
       this.refreshLyrics('youtubeSong', {
@@ -71,9 +81,10 @@ class Popup extends Component {
     }
   }
 
-  static createLyricsState = songBase => provider => ({
+  static createLyricsProviderState = songBase => provider => ({
     name: provider.name,
     url: provider.createSearchUrl(songBase),
+    isOk: undefined, // important to not be T/F here
     lines: undefined,
     error: undefined,
   });
@@ -84,7 +95,7 @@ class Popup extends Component {
     this.setState({
       [stateKey]: {
         ...songBase,
-        lyricsResults: lyricsProviders.map(Popup.createLyricsState(songBase)),
+        lyricsResults: lyricsProviders.map(Popup.createLyricsProviderState(songBase)),
       }
     });
 
@@ -93,6 +104,8 @@ class Popup extends Component {
   }
 
   onLyricsDownloaded = stateKey => (providerName, result) => {
+    console.log(`[${providerName}] lyrics downloaded: `, result);
+
     const updateState = state => {
       const prevSong = state[stateKey];
       const finishedAsFirst = prevSong.lyricsResults.length === 0;
@@ -112,14 +125,6 @@ class Popup extends Component {
     };
     this.setState(updateState);
   };
-
-  /*refreshToken = () => {
-    const refreshToken = "...";
-    const resp = await getAccessToken(refreshToken, authOpts);
-    console.log('Resp:', resp);
-    const respData = await resp.json()
-    console.log('respText: ', respData);
-  }*/
 
   onSwitchYouTubeMode = () => {
     this.setState(state => ({

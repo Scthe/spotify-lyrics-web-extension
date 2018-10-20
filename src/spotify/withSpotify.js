@@ -9,7 +9,7 @@ import config from '../config';
 const authOpts = {
   clientId: config.spotify.clientId,
   clientSecret: config.spotify.clientSecret,
-  redirectUri: '', //browser.identity.getRedirectURL(),
+  redirectUri: browser.identity.getRedirectURL(),
   scope: 'user-read-currently-playing',
 };
 console.log('authOpts: ', authOpts);
@@ -33,10 +33,10 @@ export const withSpotify = ComposedComponent => {
       const storage = await browser.storage.local.get(STORAGE_KEY);
 
       if (storage && storage[STORAGE_KEY] && storage[STORAGE_KEY].access_token) {
-        console.log('Found token in storage');
+        console.log('[spotify] Found token in storage');
         return storage[STORAGE_KEY];
       } else {
-        console.log('Token not found in storage... requesting new');
+        console.log('[spotify] Token not found in storage... requesting new');
         const newToken = await this.requestToken(authOpts);
         return await browser.storage.local.set({
           [STORAGE_KEY]: newToken,
@@ -45,22 +45,23 @@ export const withSpotify = ComposedComponent => {
     }
 
     async requestToken(authOpts) {
+      // step 1
       const respAsUrl = await getUserConsent(browser, authOpts);
-
       const params = parseUrlParams(respAsUrl);
-      // console.log(respAsUrl, params);
       const code = params.get('code');
       const err = params.get('error');
-      // console.log(code, err);
 
       if (code === undefined || err !== null) {
         throw `Could not get user consent, returned error: '${err || ''}'`;
       }
 
+      // step 2
       const resp = await getAccessToken(code, authOpts);
-      console.log('Resp:', resp);
-      const respData = await resp.json()
-      console.log('respText: ', respData);
+      const respData = await resp.json();
+      if (!resp.ok) {
+        throw 'Error converting code to access token: ' + JSON.stringify(await resp.json());
+      }
+
       return respData;
 
       /*respText:  {
@@ -72,22 +73,43 @@ export const withSpotify = ComposedComponent => {
       }*/
     }
 
-    createSpotifyFacade () {
-      const getCurrentSong = async () => {
-        const oauthToken = await this.getToken();
-        const song = await api.getCurrentSong(oauthToken);
-        // TODO handle errors
-        return song.json();
-      };
+    async getCurrentSongImpl (oauthToken) {
+      const songResp = await api.getCurrentSong(oauthToken);
+      const result = await songResp.json();
+      // console.log(result);
+      // console.log(result.error);
 
-      return {
-        getCurrentSong,
-      };
+
+      // TODO handle errors e.g. refresh token
+      if (!songResp.ok || result.error || !result.item) {
+        throw result.error.message;
+      }
+      return result;
     }
+
+    getCurrentSong = async () => {
+      try {
+        const oauthToken = await this.getToken();
+        const result = await this.getCurrentSongImpl(oauthToken);
+        return { result };
+      } catch (error) {
+        return { error };
+      }
+    };
 
     render() {
-      return <ComposedComponent {...this.props} spotify={this.createSpotifyFacade()} />;
+      const spotify = {
+        getCurrentSong: this.getCurrentSong,
+      };
+
+      return (
+        <ComposedComponent
+          spotify={spotify}
+          {...this.props}
+        />
+      );
     }
+
   }
 
 };

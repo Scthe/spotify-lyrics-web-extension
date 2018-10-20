@@ -30,7 +30,6 @@ const search = async ({artist, title}) => {
     googleHtml, 'genius.com',
     `No genius page found for ${artist} - ${title}`
   )[0];
-  // console.log('geniusUrl', geniusUrl);
 
   const geniusHtml = await fetchTextOrThrow(
     geniusUrl,
