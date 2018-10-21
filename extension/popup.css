@@ -45,6 +45,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Raleway', sans-serif;
+  background-color: hsl(0, 0%, 10%); /* important QoL */
 }
 
 button {
@@ -60,6 +61,12 @@ button {
 .app {
   color: hsl(0, 0%, 90%);
   background-color: hsl(0, 0%, 10%);
+
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 /*
@@ -112,12 +119,6 @@ button {
   text-align: center;
   /* spacing between verses - normally empty row with no content */
   min-height: 0.9rem;
-
-  -moz-user-select: text;
-  -khtml-user-select: text;
-  -webkit-user-select: text;
-  -ms-user-select: text;
-  user-select: text;
 }
 .lyrics-line:last-child { margin-bottom: 10px; }
 

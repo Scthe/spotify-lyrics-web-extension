@@ -15,7 +15,7 @@ const constructAuthCodeUrl = ({clientId, scope, redirectUri}) => {
 };
 
 /** First step of oauth: get code */
-export const getUserConsent = (browser, opts) => {
+const getUserConsent = (browser, opts) => {
   return browser.identity.launchWebAuthFlow({
     url: constructAuthCodeUrl(opts), // CLIENT_ID, scope, redirectUri
     interactive: true, // first time should always be interactive!
@@ -34,7 +34,7 @@ const bodyToFormUrlEncoded = bodyObj => {
 };
 
 /** Second step of oauth: given code, we get access_token, refresh_token et al.  */
-export const getAccessToken = (code, {clientId, clientSecret, redirectUri}) => {
+const getAccessToken = (code, {clientId, clientSecret, redirectUri}) => {
   const body = {
     grant_type: "authorization_code",
     code,
@@ -54,16 +54,71 @@ export const getAccessToken = (code, {clientId, clientSecret, redirectUri}) => {
 };
 
 
-/*
- * Oauth other
- */
 
 /*
-refreshToken = () => {
-  const refreshToken = "...";
-  const resp = await getAccessToken(refreshToken, authOpts);
-  console.log('Resp:', resp);
-  const respData = await resp.json()
-  console.log('respText: ', respData);
+ * Oauth main
+ */
+
+const parseUrlParams = url => {
+  const paramStart = url.indexOf('?');
+  const paramsString = paramStart === -1 ? '' : url.substr(paramStart + 1);
+  return new URLSearchParams(paramsString);
+};
+
+export const doNewTokenRequest = async (browser, authOpts) => {
+  // step 1
+  const respAsUrl = await getUserConsent(browser, authOpts);
+  const params = parseUrlParams(respAsUrl);
+  const code = params.get('code');
+  const err = params.get('error');
+
+  if (code === undefined || err !== null) {
+    throw `Could not get user consent, returned error: '${err || ''}'`;
+  }
+
+  // step 2
+  const resp = await getAccessToken(code, authOpts);
+  const respData = await resp.json();
+  if (!resp.ok) {
+    throw 'Error converting code to access token: ' + JSON.stringify(respData);
+  }
+
+  // console.log('doNewTokenRequest returns', respData);
+  return respData;
 }
-*/
+
+
+
+/*
+ * Oauth refresh
+ */
+
+const doRefreshToken = (refreshToken, {clientId, clientSecret}) => {
+  const body = {
+    grant_type: "refresh_token",
+    refresh_token: refreshToken,
+    client_id: clientId,
+    client_secret: clientSecret,
+  };
+
+  return fetch("https://accounts.spotify.com/api/token", {
+    method: 'POST',
+    headers: new Headers({
+      // Authorization: 'Basic ' + btoa(`${clientId}:${clientSecret}`), // or provide in body
+      'Content-Type': 'application/x-www-form-urlencoded', // NOTE: important
+    }),
+    body: bodyToFormUrlEncoded(body),
+  });
+};
+
+export const refreshToken = async (authOpts, refreshToken) => {
+  console.log(`refreshToken '${refreshToken}'`, authOpts);
+  const resp = await doRefreshToken(refreshToken, authOpts);
+  const respData = await resp.json();
+  if (!resp.ok) {
+    throw 'Error converting code to access token: ' + JSON.stringify(respData);
+  }
+
+  return respData;
+}
+

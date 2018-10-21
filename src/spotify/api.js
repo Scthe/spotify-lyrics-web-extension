@@ -1,3 +1,12 @@
+export const withErrorCatch = fn => async (...args) => {
+  try {
+    const result = await fn(...args);
+    return { result };
+  } catch (error) {
+    return { error };
+  }
+};
+
 const executeAuthorizedCall = (authOpts, path, {headers, ...restOpts}) => {
   const {access_token} = authOpts;
   return fetch(`https://api.spotify.com/v1${path}`, {
@@ -11,8 +20,16 @@ const executeAuthorizedCall = (authOpts, path, {headers, ...restOpts}) => {
   });
 }
 
-const simpleGet = path => authOpts => 
-  executeAuthorizedCall(authOpts, path, { method: 'GET' });
+const simpleGet = path => async authOpts => {
+  const resp = await executeAuthorizedCall(authOpts, path, { method: 'GET' });
+  const result = await resp.json();
+
+  if (!resp.ok || result.error) {
+    throw result.error.message;
+  }
+  return result;
+}
+
 
 export const getCurrentSong = simpleGet('/me/player/currently-playing');
 

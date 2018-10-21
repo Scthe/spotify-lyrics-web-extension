@@ -1,115 +1,119 @@
 import { h, Component } from 'preact';
 /** @jsx h */
-import {getUserConsent, getAccessToken} from './auth';
+import * as auth from './auth';
 import * as api from './api';
 import config from '../config';
 
 /////////////////////////////////////////
 
-const authOpts = {
+const STORAGE_KEY = 'spotify_token';
+const RETRY_COUNT = 3;
+const AUTH_OPTS = {
   clientId: config.spotify.clientId,
   clientSecret: config.spotify.clientSecret,
   redirectUri: browser.identity.getRedirectURL(),
   scope: 'user-read-currently-playing',
 };
-console.log('authOpts: ', authOpts);
+console.log('AUTH_OPTS: ', AUTH_OPTS);
 
-const parseUrlParams = url => {
-  const paramStart = url.indexOf('?');
-  const paramsString = paramStart === -1 ? '' : url.substr(paramStart + 1);
-  return new URLSearchParams(paramsString);
-};
-
-/////////////////////////////////////////
-
-
-const STORAGE_KEY = 'spotify_token';
 
 export const withSpotify = ComposedComponent => {
 
    return class WithSpotifyDecoratorWrapper extends Component {
 
-    async getToken () {
+    constructor (props) {
+      super(props);
+
+      // api.getCurrentSong(oauthToken);
+      this.spotifyApi = {
+        // getCurrentSong: this.wrapApiCall(this.getCurrentSong),
+        getCurrentSong: this.wrapApiCall(api.getCurrentSong),
+      };
+    }
+
+    wrapApiCall = fn_ => {
+      const fn = api.withErrorCatch(fn_);
+      const refreshToken = api.withErrorCatch(this.refreshToken);
+
+      return async () => {
+        let lastErr;
+        let oauthToken = await this.getToken();
+        console.log(`Will do API calls with init token:`, oauthToken);
+
+        for (let i = 0; i < RETRY_COUNT; i++) {
+          // execute API call
+          const { result: fnRes, error: fnErr } = await fn(oauthToken);
+          // console.log(`API call [${i+1}] returned`, {fnRes, fnErr});
+          if (!fnErr && fnRes) {
+            return { result: fnRes };
+          }
+          lastErr = fnErr;
+
+          // API call failed, try to refresh API token
+          const { result: refreshRes, error: refreshErr } = await refreshToken(oauthToken);
+          // console.log(`Tried refresh token after [${i+1}] `, {refreshRes, refreshErr});
+          if (refreshErr || !refreshRes) {
+            // error during token refreh - panic!
+            throw `Error refreshing spotify token: ${refreshErr || '-'}`;
+          }
+
+          // will retry with updated token. superfluous for last iter,
+          // but comes handy when user opens extension again
+          oauthToken = refreshRes;
+        }
+
+        // TODO at this point should request new auth/refresh pair
+        return { error: lastErr };
+      };
+    }
+
+    getToken = async () => {
+      const storageToken = await this.loadTokenFromStorage(browser);
+
+      if (storageToken) {
+        console.log('[spotify] Found token in storage');
+        return storageToken;
+      } else {
+        console.log('[spotify] Token not found in storage... requesting new');
+        const newToken = await auth.doNewTokenRequest(browser, AUTH_OPTS);
+        await this.storeTokenInStorage(newToken);
+        return newToken;
+      }
+    }
+
+    refreshToken = async (oldToken) => {
+      let newToken = await auth.refreshToken(AUTH_OPTS, oldToken.refresh_token);
+      newToken =  {...oldToken, ...newToken };
+
+      await this.storeTokenInStorage(newToken);
+      return newToken;
+    }
+
+    async loadTokenFromStorage (browser) {
       const storage = await browser.storage.local.get(STORAGE_KEY);
 
       if (storage && storage[STORAGE_KEY] && storage[STORAGE_KEY].access_token) {
-        console.log('[spotify] Found token in storage');
         return storage[STORAGE_KEY];
-      } else {
-        console.log('[spotify] Token not found in storage... requesting new');
-        const newToken = await this.requestToken(authOpts);
-        return await browser.storage.local.set({
-          [STORAGE_KEY]: newToken,
-        });
       }
+
+      return null;
     }
 
-    async requestToken(authOpts) {
-      // step 1
-      const respAsUrl = await getUserConsent(browser, authOpts);
-      const params = parseUrlParams(respAsUrl);
-      const code = params.get('code');
-      const err = params.get('error');
-
-      if (code === undefined || err !== null) {
-        throw `Could not get user consent, returned error: '${err || ''}'`;
-      }
-
-      // step 2
-      const resp = await getAccessToken(code, authOpts);
-      const respData = await resp.json();
-      if (!resp.ok) {
-        throw 'Error converting code to access token: ' + JSON.stringify(await resp.json());
-      }
-
-      return respData;
-
-      /*respText:  {
-        "access_token":"BQAnuKwFx8ueAIRk5_OU9vkysLsTitmxxeA4dmBX12YFPuI64X9WWQb6S1S0BKqTKNMB1xs7yr3QHk9_Pk3WSCImc06tHKR-fucDVJA4gFesS5ibXb3MmDXtpqjbkiUmY507wEc9fzw3wnUk-yfpgx_D",
-        "token_type":"Bearer",
-        "expires_in":3600,
-        "refresh_token":"AQD8H_d5rMCqyoBdm_uP-FGogs9TLNSw8ed9zP4lVKzo9aLgmdNBzUrmmlfJ824oHm0mn298ZFNMHakXhXO4ofupp1rNjTrEHuJVtR3oY20iNplRAE_51uoj8llMENU_nysuzQ",
-        "scope":"user-read-currently-playing"
-      }*/
+    storeTokenInStorage (token) {
+      return browser.storage.local.set({
+        [STORAGE_KEY]: token,
+      });
     }
-
-    async getCurrentSongImpl (oauthToken) {
-      const songResp = await api.getCurrentSong(oauthToken);
-      const result = await songResp.json();
-      // console.log(result);
-      // console.log(result.error);
-
-
-      // TODO handle errors e.g. refresh token
-      if (!songResp.ok || result.error || !result.item) {
-        throw result.error.message;
-      }
-      return result;
-    }
-
-    getCurrentSong = async () => {
-      try {
-        const oauthToken = await this.getToken();
-        const result = await this.getCurrentSongImpl(oauthToken);
-        return { result };
-      } catch (error) {
-        return { error };
-      }
-    };
 
     render() {
-      const spotify = {
-        getCurrentSong: this.getCurrentSong,
-      };
-
       return (
         <ComposedComponent
-          spotify={spotify}
+          spotify={this.spotifyApi}
           {...this.props}
         />
       );
     }
 
-  }
+  }; // END class WithSpotifyDecoratorWrapper
 
 };

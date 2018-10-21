@@ -9,7 +9,6 @@ import {createGoogleSearchUrl} from './lyricsProvider/_utils';
 import {getYoutubeTitle} from './youtube';
 
 
-// TODO finalize spotify
 // TODO create @withEnv that has browser object and debug flag (or use polyfill)
 // TODO verify all names - package.json, manifest etc.
 
