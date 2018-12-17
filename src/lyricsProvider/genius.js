@@ -23,22 +23,22 @@ const WRAPPER_REGEX = /<div class="lyrics">([.\S\s]*?)<\/p>/gm;
 const search = async ({artist, title}) => {
   const googleHtml = await searchGoogle(
     [artist, title, 'genius', 'lyrics'],
-    `Google not working, send help (${artist} - ${title} btw.)`
+    `Google not working, send help ('${artist}' - '${title}' btw.)`
   );
 
   const geniusUrl = getUrlFromSearchResults(
     googleHtml, 'genius.com',
-    `No genius page found for ${artist} - ${title}`
+    `No genius page found for '${artist}' - '${title}'`
   )[0];
 
   const geniusHtml = await fetchTextOrThrow(
     geniusUrl,
-    `Could not fetch genius page for ${artist} - ${title}`
+    `Could not fetch genius page for '${artist}' - '${title}'`
   );
 
   let rawText = regexMatchOrThrow(
     WRAPPER_REGEX, geniusHtml,
-    `Could not parse genius page for lyrics for ${artist} - ${title} (${geniusUrl})`
+    `Could not parse genius page for lyrics for '${artist}' - '${title}' (${geniusUrl})`
   ).join('');
   rawText.substring(rawText.indexOf('<p>') + 3);
 

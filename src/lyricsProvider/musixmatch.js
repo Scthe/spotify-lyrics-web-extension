@@ -22,22 +22,22 @@ const WRAPPER_REGEX = /<p class="mxm-lyrics__content ">([.\S\s]*?)<\/p>/gm;
 const search = async ({artist, title}) => {
   const googleHtml = await searchGoogle(
     [artist, title, 'musixmatch', 'lyrics'],
-    `Google not working, send help (${artist} - ${title} btw.)`
+    `Google not working, send help ('${artist}' - '${title}' btw.)`
   );
 
   const pageUrl = getUrlFromSearchResults(
     googleHtml, 'www.musixmatch.com',
-    `No musixmatch page found for ${artist} - ${title}`
+    `No musixmatch page found for '${artist}' - '${title}'`
   )[0];
 
   const html = await fetchTextOrThrow(
     pageUrl,
-    `Could not fetch musixmatch page for ${artist} - ${title}`
+    `Could not fetch musixmatch page for '${artist}' - '${title}'`
   );
 
   const rawText = regexMatchOrThrow(
     WRAPPER_REGEX, html,
-    `Could not parse musixmatch page for lyrics for ${artist} - ${title} (${pageUrl})`
+    `Could not parse musixmatch page for lyrics for '${artist}' - '${title}' (${pageUrl})`
   ).join('\n');
 
   const rawLines = rawText.split('\n');

@@ -5,18 +5,8 @@ import {Loader} from './index';
 
 export class LyricsViewer extends Component {
 
-  doneDownloading (lyrics) {
-    if (!lyrics) { return false; }
-
-    return lyrics.isOk !== undefined;
-  }
-
-  lyricsDownloadedOk (lyrics) {
-    return lyrics.isOk === true && !lyrics.error && lyrics.lines;
-  }
-
   render ({lyrics}) {
-    if (!this.doneDownloading(lyrics)) {
+    if (!lyrics) {
       return (
         <div class="lyrics-viewer--loading">
           <Loader />
@@ -24,7 +14,7 @@ export class LyricsViewer extends Component {
       );
     }
 
-    if (!this.lyricsDownloadedOk(lyrics)) {
+    if (lyrics.error) {
       const err = lyrics.error || 'Unexpected error';
       return (
         <div class="lyrics-viewer--err">
@@ -32,7 +22,6 @@ export class LyricsViewer extends Component {
         </div>
       );
     }
-
 
     return (
       <div class="lyrics-viewer">

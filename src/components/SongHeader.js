@@ -2,22 +2,25 @@ import { h, Component } from 'preact';
 /** @jsx h */
 import {SvgIcon, ICON_YOUTUBE, Loader} from './index';
 
+// only shallow, but we won't need more
+const get = (obj, prop, default_) => (obj && obj[prop]) || default_;
 
-const AlbumArt = ({hasAnyResults, imageUrl, isYouTubeMode}) => {
-  if (!hasAnyResults) {
-    return (
-      <div class="songHeader__albumArt songHeader__loader">
-        <Loader />
-      </div>
-    );
-  }
-
+const AlbumArt = ({imageUrl, isYouTubeMode}) => {
+  // don't need imageUrl for this
   if (isYouTubeMode) {
     return (
       <SvgIcon
         svg={ICON_YOUTUBE}
         className='songHeader__albumArt songHeader__albumArt_youTube'
       />
+    );
+  }
+
+  if (!imageUrl) {
+    return (
+      <div class="songHeader__albumArt songHeader__loader">
+        <Loader />
+      </div>
     );
   }
 
@@ -37,17 +40,16 @@ export class SongHeader extends Component {
     ].join(' ');
   }
 
-  render ({artist, title, albumArt, hasAnyResults, isYouTubeMode}) {
+  render ({song, isYouTubeMode}) {
     return (
       <div class={this.getClasses()}>
         <AlbumArt
-          imageUrl={albumArt}
-          hasAnyResults={hasAnyResults}
+          imageUrl={get(song, 'albumArt')}
           isYouTubeMode={isYouTubeMode}
         />
         <div class="songHeader__Text">
-          <h2 class="songHeader__Title ellipsis">{title}</h2>
-          <h4 class="songHeader__Artist ellipsis">{artist}</h4>
+          <h2 class="songHeader__Title ellipsis">{get(song, 'title', '')}</h2>
+          <h4 class="songHeader__Artist ellipsis">{get(song, 'artist', '')}</h4>
         </div>
       </div>
     );
