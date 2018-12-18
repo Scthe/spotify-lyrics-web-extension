@@ -1,3 +1,5 @@
+const HTTP_NO_CONTENT = 204;
+
 export const withErrorCatch = fn => async (...args) => {
   try {
     const result = await fn(...args);
@@ -22,6 +24,10 @@ const executeAuthorizedCall = (authOpts, path, {headers, ...restOpts}) => {
 
 const simpleGet = path => async authOpts => {
   const resp = await executeAuthorizedCall(authOpts, path, { method: 'GET' });
+  if (resp.status === HTTP_NO_CONTENT) {
+    throw 'Spotify returned no data';
+  }
+
   const result = await resp.json();
 
   if (!resp.ok || result.error) {

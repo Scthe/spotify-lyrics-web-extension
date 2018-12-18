@@ -26,10 +26,12 @@ const createSongOk = (source, {title, artist, albumArt}) => ({
 });
 const createSongErr = (source, error) => ({source, error});
 
-const createLyricsOk = (source, {lines, url, providerName}) => ({
+const createLyricsOk = (source, providerName, {lines, url}) => ({
   source, lines, url, providerName,
 });
-const createLyricsErr = (source, error) => ({source, error});
+const createLyricsErr = (source, providerName, error) => ({
+  source, providerName, error
+});
 
 
 
@@ -101,9 +103,9 @@ class Popup extends Component {
 
       let lyrics;
       if (error) {
-        lyrics = createLyricsErr(song.source, error);
+        lyrics = createLyricsErr(song.source, providerName, error.message || error);
       } else {
-        lyrics = createLyricsOk(song.source, {...result, providerName});
+        lyrics = createLyricsOk(song.source, providerName, result);
       }
 
       this.setState(state => ({
@@ -174,6 +176,7 @@ class Popup extends Component {
   render() {
     const song = this.getCurrentSong();
     const lyrics = this.getCurrentLyrics();
+    // console.log('RENDER', {song, lyrics, state: this.state});
 
     return (
       <div>
@@ -182,7 +185,7 @@ class Popup extends Component {
           song={song}
           isYouTubeMode={this.isYouTubeMode()}
         />
-        <LyricsViewer lyrics={lyrics} />
+        <LyricsViewer lyrics={lyrics} error={song && song.error} />
       </div>
     );
   }

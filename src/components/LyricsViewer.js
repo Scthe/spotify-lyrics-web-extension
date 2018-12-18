@@ -5,7 +5,19 @@ import {Loader} from './index';
 
 export class LyricsViewer extends Component {
 
-  render ({lyrics}) {
+  renderError (error) {
+    return (
+      <div class="lyrics-viewer--err">
+        <span class="lyrics-viewer--err-msg">{error}</span>
+      </div>
+    );
+  }
+
+  render ({lyrics, error}) {
+    if (error) {
+      return this.renderError(error || 'Unexpected error');
+    }
+
     if (!lyrics) {
       return (
         <div class="lyrics-viewer--loading">
@@ -15,12 +27,7 @@ export class LyricsViewer extends Component {
     }
 
     if (lyrics.error) {
-      const err = lyrics.error || 'Unexpected error';
-      return (
-        <div class="lyrics-viewer--err">
-          <span class="lyrics-viewer--err-msg">{err}</span>
-        </div>
-      );
+      return this.renderError(lyrics.error || 'Unexpected error');
     }
 
     return (

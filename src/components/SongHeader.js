@@ -40,6 +40,13 @@ export class SongHeader extends Component {
     ].join(' ');
   }
 
+  getTitle (song) {
+    if (song && song.error) {
+      return song.error;
+    }
+    return get(song, 'title', '');
+  }
+
   render ({song, isYouTubeMode}) {
     return (
       <div class={this.getClasses()}>
@@ -48,7 +55,7 @@ export class SongHeader extends Component {
           isYouTubeMode={isYouTubeMode}
         />
         <div class="songHeader__Text">
-          <h2 class="songHeader__Title ellipsis">{get(song, 'title', '')}</h2>
+          <h2 class="songHeader__Title ellipsis">{this.getTitle(song)}</h2>
           <h4 class="songHeader__Artist ellipsis">{get(song, 'artist', '')}</h4>
         </div>
       </div>
