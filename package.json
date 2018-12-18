@@ -1,14 +1,13 @@
 {
-  "name": "spotify-lyrics-web-ext",
+  "name": "spotify-lyrics-popup",
+  "author": "Marcin Matuszczyk (Scthe)",
+  "license": "MIT",
+  "description": "View lyrics for current Spotify/YouTube song",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "main": "extension/manifest.json",
   "scripts": {
-    "build": "webpack -w --display-error-details --progress --colors",
-    "start": "web-ext run --config=\"./web-ext.cfg.js\" --sourceDir=\"extension\""
+    "start": "webpack -w --display-error-details --progress --colors"
   },
-  "author": "",
-  "license": "MPL-2.0",
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",

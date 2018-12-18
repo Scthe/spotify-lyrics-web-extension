@@ -15,6 +15,10 @@ const AUTH_OPTS = {
   scope: 'user-read-currently-playing',
 };
 console.log('AUTH_OPTS: ', AUTH_OPTS);
+console.warn(
+  `Will do spotify auth with redirect url '${AUTH_OPTS.redirectUri}'.`
+  + 'Make sure it is allowed in spotify app settings (in spotify dev portal)'
+);
 
 
 export const withSpotify = ComposedComponent => {
