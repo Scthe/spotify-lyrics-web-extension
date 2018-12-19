@@ -1,3 +1,5 @@
+const browser = require('webextension-polyfill');
+
 // https://developer.spotify.com/documentation/general/guides/authorization-guide/
 
 /*
@@ -15,7 +17,7 @@ const constructAuthCodeUrl = ({clientId, scope, redirectUri}) => {
 };
 
 /** First step of oauth: get code */
-const getUserConsent = (browser, opts) => {
+const getUserConsent = (opts) => {
   return browser.identity.launchWebAuthFlow({
     url: constructAuthCodeUrl(opts), // CLIENT_ID, scope, redirectUri
     interactive: true, // first time should always be interactive!
@@ -65,9 +67,9 @@ const parseUrlParams = url => {
   return new URLSearchParams(paramsString);
 };
 
-export const doNewTokenRequest = async (browser, authOpts) => {
+export const doNewTokenRequest = async (authOpts) => {
   // step 1
-  const respAsUrl = await getUserConsent(browser, authOpts);
+  const respAsUrl = await getUserConsent(authOpts);
   const params = parseUrlParams(respAsUrl);
   const code = params.get('code');
   const err = params.get('error');

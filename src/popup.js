@@ -9,10 +9,6 @@ import {createGoogleSearchUrl} from './lyricsProvider/_utils';
 import {getYoutubeTitle} from './youtube';
 
 
-// TODO create @withEnv that has browser object and debug flag
-//      OR use polyfill (https://github.com/mozilla/webextension-polyfill)
-// TODO verify all names - package.json, manifest etc.
-
 const SONG_SOURCE = {
   SPOTIFY: 0,
   YOUTUBE: 1,
@@ -78,7 +74,7 @@ class Popup extends Component {
   }
 
   updateYoutube = async () => {
-    const videoTitle = await getYoutubeTitle(browser);
+    const videoTitle = await getYoutubeTitle();
     if (!videoTitle) {
       console.log(`[youtube] not youtube tab, skip!`);
       return;

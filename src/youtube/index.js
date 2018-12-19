@@ -1,4 +1,5 @@
-// TODO verify support mobile etc.
+const browser = require('webextension-polyfill');
+
 const IS_YOUTUBE_URL_REGEX = /https?:\/\/[^\/]+youtube\.com\/watch/;
 
 const cleanUpPageTitle = title => {
@@ -9,7 +10,7 @@ const cleanUpPageTitle = title => {
   return t1.trim();
 };
 
-export const getYoutubeTitle = browser => {
+export const getYoutubeTitle = () => {
   return browser.tabs.query({active: true}).then(tabs => {
     const {url, title} = tabs[0];
     if (!IS_YOUTUBE_URL_REGEX.test(url)) {

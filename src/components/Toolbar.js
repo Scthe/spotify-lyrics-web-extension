@@ -1,5 +1,6 @@
 import { h, Component } from 'preact';
 /** @jsx h */
+const browser = require('webextension-polyfill');
 
 // NOTE: YT means YouTube
 // NOTE: mx means musixmatch

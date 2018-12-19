@@ -1,4 +1,5 @@
 import { h, Component } from 'preact';
+const browser = require('webextension-polyfill');
 /** @jsx h */
 import * as auth from './auth';
 import * as api from './api';
@@ -82,14 +83,14 @@ export const withSpotify = ComposedComponent => {
 
     /** Get first token, either from local storage, or from Spotify API */
     loadInitalToken = async (forceRenew = false) => {
-      const storageToken = await this.loadTokenFromStorage(browser);
+      const storageToken = await this.loadTokenFromStorage();
 
       if (!forceRenew && storageToken) {
         console.log('[spotify] Found token in storage');
         return storageToken;
       } else {
         console.log('[spotify] Token not found in storage... requesting new');
-        const newToken = await auth.doNewTokenRequest(browser, AUTH_OPTS);
+        const newToken = await auth.doNewTokenRequest(AUTH_OPTS);
         await this.storeTokenInStorage(newToken);
         return newToken;
       }
@@ -106,7 +107,7 @@ export const withSpotify = ComposedComponent => {
       return newToken;
     }
 
-    async loadTokenFromStorage (browser) {
+    async loadTokenFromStorage () {
       const storage = await browser.storage.local.get(STORAGE_KEY);
 
       if (storage && storage[STORAGE_KEY] && storage[STORAGE_KEY].access_token) {
