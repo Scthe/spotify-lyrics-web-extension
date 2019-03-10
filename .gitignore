@@ -10,3 +10,9 @@ reference
 
 # thonk..
 src/config.js
+
+# raw files used to generate readme images
+gh-images/raw
+
+# build artifact
+spotify-lyrics-popup.zip

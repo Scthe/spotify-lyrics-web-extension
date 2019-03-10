@@ -7,9 +7,11 @@
   "main": "extension/manifest.json",
   "scripts": {
     "start": "webpack -w --display-error-details --progress --colors",
-    "compile": "webpack --config webpack.config.js --mode production"
+    "prebuild": "webpack --config webpack.config.js --mode production",
+    "build": "node pack-extension.js"
   },
   "devDependencies": {
+    "archiver": "^3.0.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-plugin-transform-decorators-legacy": "^1.3.5",
