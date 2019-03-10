@@ -1,7 +1,6 @@
 import { h, Component } from 'preact';
 /** @jsx h */
-
-// TODO 'go to settings' btn
+const browser = require('webextension-polyfill');
 
 // NOTE: YT means YouTube
 // NOTE: mx means musixmatch
@@ -41,7 +40,9 @@ export class Toolbar extends Component {
 
     const onClick = () => {
       if (isActive) {
-        this.openTab(provider.url);
+        if (provider.url) {
+          this.openTab(provider.url);
+        }
       } else {
         onProviderSwitch(provider.name);
       }
@@ -59,9 +60,9 @@ export class Toolbar extends Component {
   };
 
   renderYouTubeBtn () {
-    const {onClick, isVisible, active} = this.props.ytSettings;
+    const {onClick, canSwitchToYouTube, active} = this.props.ytSettings;
 
-    return isVisible ? (
+    return canSwitchToYouTube ? (
       <ToolbarBtn
         tooltip='Toggle YouTube mode'
         logo={ICON_YOUTUBE}
@@ -74,7 +75,9 @@ export class Toolbar extends Component {
 
   onGoogleClick = () => {
     const {googleUrl} = this.props;
-    this.openTab(googleUrl);
+    if (googleUrl) {
+      this.openTab(googleUrl);
+    }
   };
 
   render ({providers}) {
@@ -85,7 +88,7 @@ export class Toolbar extends Component {
         </div>
         <div class="toolbar__right">
           <ToolbarBtn
-            tooltip='Google for lyrics'
+            tooltip='Search Google for lyrics'
             logo={ICON_GOOGLE_G}
             className='toolbar_google'
             active={true}

@@ -1,9 +1,9 @@
 {
   "manifest_version": 2,
-  "name": "react-es6-popup-example",
-  "description": "Altering HTTP responses",
+  "name": "Spotify lyrics popup",
+  "description": "View lyrics for current Spotify/YouTube song",
   "version": "1.0",
-  "homepage_url": "https://github.com/mdn/webextensions-examples/tree/master/http-response",
+  "homepage_url": "https://github.com/Scthe/spotify-lyrics-popup",
   "icons": {
     "48": "images/icon-48.png",
     "96": "images/icon-96.png"
@@ -11,21 +11,20 @@
 
   "content_security_policy": "script-src 'self' https://accounts.spotify.com; object-src 'self'",
 
-
   "browser_action": {
     "browser_style": true,
     "default_icon": {
       "48": "images/icon-48.png",
       "96": "images/icon-96.png"
     },
-    "default_title": "React Example",
+    "default_title": "Spotify lyrics popup",
     "default_popup": "popup.html"
   },
 
   "applications": {
     "gecko": {
-      "id": "spotify-lyrics-web-ext@example.com",
-      "strict_min_version": "42.0"
+      "id": "spotify-lyrics-popup@example.com",
+      "strict_min_version": "57.0"
     }
   },
 

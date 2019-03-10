@@ -44,13 +44,10 @@ export const withLyrics = ComposedComponent => {
       let result;
       try {
         result = {
-          ...await provider.searchFn(song),
-          isOk: true,
+          result: await provider.searchFn(song),
         };
-      } catch (err) {
-        result = {
-          error: err, isOk: false,
-        };
+      } catch (error) {
+        result = { error, };
       }
 
       return result;

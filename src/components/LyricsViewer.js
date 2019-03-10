@@ -5,18 +5,20 @@ import {Loader} from './index';
 
 export class LyricsViewer extends Component {
 
-  doneDownloading (lyrics) {
-    if (!lyrics) { return false; }
-
-    return lyrics.isOk !== undefined;
+  renderError (error) {
+    return (
+      <div class="lyrics-viewer--err">
+        <span class="lyrics-viewer--err-msg">{error}</span>
+      </div>
+    );
   }
 
-  lyricsDownloadedOk (lyrics) {
-    return lyrics.isOk === true && !lyrics.error && lyrics.lines;
-  }
+  render ({lyrics, error}) {
+    if (error) {
+      return this.renderError(error || 'Unexpected error');
+    }
 
-  render ({lyrics}) {
-    if (!this.doneDownloading(lyrics)) {
+    if (!lyrics) {
       return (
         <div class="lyrics-viewer--loading">
           <Loader />
@@ -24,15 +26,9 @@ export class LyricsViewer extends Component {
       );
     }
 
-    if (!this.lyricsDownloadedOk(lyrics)) {
-      const err = lyrics.error || 'Unexpected error';
-      return (
-        <div class="lyrics-viewer--err">
-          <span class="lyrics-viewer--err-msg">{err}</span>
-        </div>
-      );
+    if (lyrics.error) {
+      return this.renderError(lyrics.error || 'Unexpected error');
     }
-
 
     return (
       <div class="lyrics-viewer">
