@@ -1,4 +1,5 @@
 const browser = require('webextension-polyfill');
+import { useState, useEffect } from 'preact/hooks';
 
 const IS_YOUTUBE_URL_REGEX = /https?:\/\/[^\/]+youtube\.com\/watch/;
 
@@ -10,13 +11,27 @@ const cleanUpPageTitle = title => {
   return t1.trim();
 };
 
-export const getYoutubeTitle = () => {
-  return browser.tabs.query({active: true}).then(tabs => {
-    const {url, title} = tabs[0];
-    if (!IS_YOUTUBE_URL_REGEX.test(url)) {
-      return undefined;
-    }
-    // console.log(title);
-    return cleanUpPageTitle(title);
-  });
+const getYoutubeTitle = async () => {
+  const activeTabs = await browser.tabs.query({active: true});
+
+  const youtubeTab = activeTabs.find(
+    tab => IS_YOUTUBE_URL_REGEX.test(tab.url || '')
+  );
+  // console.log({activeTabs, youtubeTab});
+  return youtubeTab ? cleanUpPageTitle(youtubeTab.title) : undefined;
+};
+
+
+export const useYoutubeSong = () => {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(undefined);
+
+  useEffect(async () => {
+    const title = await getYoutubeTitle();
+    const song = title ? {title} : undefined;
+    setData(song);
+    setLoading(false);
+  }, []);
+
+  return { loading, data, };
 };

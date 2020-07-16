@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Spotify lyrics popup",
   "description": "View lyrics for current Spotify/YouTube song",
-  "version": "1.0",
+  "version": "2.0",
   "homepage_url": "https://github.com/Scthe/spotify-lyrics-popup",
   "icons": {
     "48": "images/icon-48.png",
@@ -23,7 +23,7 @@
 
   "applications": {
     "gecko": {
-      "id": "spotify-lyrics-popup@example.com",
+      "id": "spotify-lyrics-popup@example2.com",
       "strict_min_version": "57.0"
     }
   },

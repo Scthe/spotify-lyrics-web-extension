@@ -1,11 +1,12 @@
-import { h, Component } from 'preact';
+import { h } from 'preact';
+import { useCallback } from 'preact/hooks';
 /** @jsx h */
-const browser = require('webextension-polyfill');
-
-// NOTE: YT means YouTube
-// NOTE: mx means musixmatch
 
 import {SvgIcon, ICON_GOOGLE_G, ICON_YOUTUBE} from './index';
+import {openTab, get} from '../utils';
+import {createGoogleSearchUrl} from '../lyricsProvider/_utils';
+import {useYoutubeSong} from '../youtube';
+
 
 const ToolbarBtn = ({logo, className, active, onClick, tooltip}) => {
   const classes = [
@@ -25,79 +26,109 @@ const ToolbarBtn = ({logo, className, active, onClick, tooltip}) => {
 };
 
 
-export class Toolbar extends Component {
+const ProviderBtn = ({
+  song,
+  provider,
+  setLyricsProvider,
+}) => {
+  const {name, logo, lyricsPageUrl, isActive} = provider;
 
-  openTab = url => {
-    // console.log(`open-tab '${url}'`);
-    browser.tabs.create({
-      url,
-    });
-  }
-
-  renderProviderBtn = provider => {
-    const {currentProvider, onProviderSwitch} = this.props;
-    const isActive = provider.name === currentProvider;
-
-    const onClick = () => {
-      if (isActive) {
-        if (provider.url) {
-          this.openTab(provider.url);
+  const onClick = useCallback(
+    () => {
+      if (isActive && song.data != null) {
+        if (lyricsPageUrl) {
+          openTab(lyricsPageUrl);
         }
       } else {
-        onProviderSwitch(provider.name);
+        setLyricsProvider(provider);
       }
-    };
+    },
+    [isActive, song, name]
+  );
 
-    return (
-      <ToolbarBtn
-        tooltip={provider.name}
-        logo={provider.logo}
-        className={`toolbar_${provider.name}`}
-        active={isActive}
-        onClick={onClick}
-      />
-    );
-  };
+  return (
+    <ToolbarBtn
+      tooltip={name}
+      logo={logo}
+      className={`toolbar_${name}`}
+      active={isActive}
+      onClick={onClick}
+    />
+  );
+};
 
-  renderYouTubeBtn () {
-    const {onClick, canSwitchToYouTube, active} = this.props.ytSettings;
 
-    return canSwitchToYouTube ? (
-      <ToolbarBtn
-        tooltip='Toggle YouTube mode'
-        logo={ICON_YOUTUBE}
-        className='toolbar_youtube'
-        active={active}
-        onClick={onClick}
-      />
-    ) : null;
-  }
+const YouTubeBtn = ({
+  isYouTubeMode,
+  setYouTubeMode,
+}) => {
+  const {loading, data} = useYoutubeSong();
 
-  onGoogleClick = () => {
-    const {googleUrl} = this.props;
-    if (googleUrl) {
-      this.openTab(googleUrl);
-    }
-  };
+  const toggleYouTubeMode = useCallback(() => {
+    setYouTubeMode(!isYouTubeMode);
+  }, [isYouTubeMode]);
 
-  render ({providers}) {
-    return (
-      <div class="toolbar clearfix">
-        <div class="toolbar__left">
-          {this.renderYouTubeBtn()}
-        </div>
-        <div class="toolbar__right">
-          <ToolbarBtn
-            tooltip='Search Google for lyrics'
-            logo={ICON_GOOGLE_G}
-            className='toolbar_google'
-            active={true}
-            onClick={this.onGoogleClick}
-          />
-          {providers.map(this.renderProviderBtn)}
-        </div>
-      </div>
-    );
-  }
-
+  return !loading && data != null ? (
+    <ToolbarBtn
+      tooltip='Toggle YouTube mode'
+      logo={ICON_YOUTUBE}
+      className='toolbar_youtube'
+      active={isYouTubeMode}
+      onClick={toggleYouTubeMode}
+    />
+  ) : null;
 }
+
+
+export const Toolbar = ({
+  song,
+  setYouTubeMode,
+  isYouTubeMode,
+  setLyricsProvider,
+  providers,
+}) => {
+  console.log('<Toolbar>', {song, isYouTubeMode, providers});
+
+  const onGoogleClick = useCallback(
+    () => {
+      const googleUrl = createGoogleSearchUrl([
+        get(song.data, 'artist', ''),
+        get(song.data, 'title', ''),
+        'lyrics'
+      ]);
+
+      if (googleUrl && song.data != null) {
+        openTab(googleUrl);
+      }
+    },
+    [song]
+  );
+
+  return (
+    <div class="toolbar clearfix">
+      <div class="toolbar__left">
+        <YouTubeBtn
+          isYouTubeMode={isYouTubeMode}
+          setYouTubeMode={setYouTubeMode}
+        />
+      </div>
+      <div class="toolbar__right">
+        <ToolbarBtn
+          tooltip='Search Google for lyrics'
+          logo={ICON_GOOGLE_G}
+          className='toolbar_google'
+          active={true}
+          onClick={onGoogleClick}
+        />
+        {providers.map(p => (
+          <ProviderBtn
+            key={p.name}
+            provider={p}
+            song={song}
+            setLyricsProvider={setLyricsProvider}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};

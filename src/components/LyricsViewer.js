@@ -3,9 +3,11 @@ import { h, Component } from 'preact';
 import {Loader} from './index';
 
 
-export class LyricsViewer extends Component {
-
-  renderError (error) {
+export const LyricsViewer = ({
+  error,
+  lyricLines,
+}) => {
+  if (error) {
     return (
       <div class="lyrics-viewer--err">
         <span class="lyrics-viewer--err-msg">{error}</span>
@@ -13,30 +15,19 @@ export class LyricsViewer extends Component {
     );
   }
 
-  render ({lyrics, error}) {
-    if (error) {
-      return this.renderError(error || 'Unexpected error');
-    }
-
-    if (!lyrics) {
-      return (
-        <div class="lyrics-viewer--loading">
-          <Loader />
-        </div>
-      );
-    }
-
-    if (lyrics.error) {
-      return this.renderError(lyrics.error || 'Unexpected error');
-    }
-
+  if (lyricLines == null) {
     return (
-      <div class="lyrics-viewer">
-        {lyrics.lines.map(line => (
-          <span class="lyrics-line">{line}</span>)
-        )}
+      <div class="lyrics-viewer--loading">
+        <Loader />
       </div>
     );
   }
 
-}
+  return (
+    <div class="lyrics-viewer">
+      {lyricLines.map(line => (
+        <span class="lyrics-line">{line}</span>)
+      )}
+    </div>
+  );
+};

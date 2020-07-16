@@ -118,9 +118,8 @@ export const refreshToken = async (authOpts, refreshToken) => {
   const resp = await doRefreshToken(refreshToken, authOpts);
   const respData = await resp.json();
   if (!resp.ok) {
-    throw 'Error converting code to access token: ' + JSON.stringify(respData);
+    throw 'Error refreshing spotify token: ' + JSON.stringify(respData);
   }
 
   return respData;
 }
-

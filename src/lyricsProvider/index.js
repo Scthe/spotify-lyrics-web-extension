@@ -12,56 +12,78 @@
 
 
 import { h, Component } from 'preact';
+import { useState, useReducer, useEffect } from 'preact/hooks';
 /** @jsx h */
 import genius from './genius';
 import musixmatch from './musixmatch';
 
 
-// NOTE: interface Song { title: string; artist: string};
+export const LYRICS_PROVIDERS = [
+  genius,
+  musixmatch,
+];
 
 
-export const withLyrics = ComposedComponent => {
+const DEFAULT_LYRICS_STATE = {
+  loading: true,
+  data: undefined,
+  error: undefined,
+};
 
-  return class WithLyricsDecoratorWrapper extends Component {
+const reducer = (state, actionObj) => {
+  const {action, providerName, song} = actionObj;
+  console.log(`[Lyrics ${action}] ${providerName} '${song.artist}-${song.title}'`);
 
-    constructor (props) {
-      super(props);
-
-      this.providers = [
-        genius,
-        musixmatch,
-      ];
-    }
-
-    getLyrics = (song, cb) => {
-      this.providers.map(async provider => {
-        const res = await this.executeLyricsProvider(provider, song);
-        cb(provider.name, res);
-      });
+  switch (action) {
+    case 'reset': return {
+      ...state,
+      [providerName]: { ...DEFAULT_LYRICS_STATE },
     };
-
-    executeLyricsProvider = async (provider, song) => {
-      let result;
-      try {
-        result = {
-          result: await provider.searchFn(song),
-        };
-      } catch (error) {
-        result = { error, };
-      }
-
-      return result;
-    }
-
-    render() {
-      return (
-        <ComposedComponent
-          getLyrics={this.getLyrics}
-          lyricsProviders={this.providers}
-          {...this.props}
-        />
-      );
-    }
+    case 'error': return {
+      ...state,
+      [providerName]: {
+        loading: false,
+        error: 'Unable to find lyrics',
+        data: undefined,
+      },
+    };
+    case 'success': return {
+      ...state,
+      [providerName]: {
+        loading: false,
+        error: undefined,
+        data: actionObj.data,
+      },
+    };
+    default: throw new Error('Unexpected action');
   }
+};
 
+export const useLyrics = (currentLyricsProvider, song = {}) => {
+  const {artist, title} = song;
+
+  const [lyricsCache, dispatch] = useReducer(reducer, {});
+  // console.log(`[useLyrics] ${currentLyricsProvider.name} '${artist}-${title}'`);
+
+  useEffect(() => {
+    if (title == null) { return; }
+
+    LYRICS_PROVIDERS.forEach(async lyricsProvider => {
+      const actionBase = {
+        providerName: lyricsProvider.name,
+        song,
+      };
+      dispatch({ ...actionBase, action: 'reset' });
+
+      try {
+        const data = await lyricsProvider.searchFn(song);
+        dispatch({ ...actionBase, action: 'success', data });
+      } catch (error) {
+        console.error('Lyrics fetch error', actionBase, error);
+        dispatch({ ...actionBase, action: 'error' });
+      }
+    });
+  }, [artist, title]);
+
+  return lyricsCache[currentLyricsProvider.name] || DEFAULT_LYRICS_STATE;
 };
