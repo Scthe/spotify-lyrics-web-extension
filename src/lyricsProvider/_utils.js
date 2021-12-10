@@ -8,20 +8,18 @@ export const fetchTextOrThrow = async (url, exMsg) => {
     throw exMsg;
   }
   return resp.text();
-}
+};
 
-export const createGoogleSearchUrl = phraseArr => {
-  const q1 = phraseArr.join(' ').trim();
+export const createGoogleSearchUrl = (phraseArr) => {
+  const q1 = phraseArr.join(" ").trim();
   const query = encodeURIComponent(q1);
   return `https://www.google.com/search?q=${query}`;
-}
+};
 
 export const searchGoogle = (phraseArr, exMsg) => {
   // console.log(`Google search for '${phrase}'`);
   return fetchTextOrThrow(createGoogleSearchUrl(phraseArr), exMsg);
 };
-
-
 
 //////////////////////
 /// regex
@@ -44,26 +42,23 @@ export const regexMatchOrThrow = (regex, text, exMsg) => {
   }
 
   return res;
-}
-
-
+};
 
 //////////////////////
 /// html parse
 //////////////////////
 
 const REMOVE_HTML_TAG_REGEX = /<\/?[^>]*>/g;
-const REMOVE_NEWLINE_REGEX = '\n'; // nice regex m8
+const REMOVE_NEWLINE_REGEX = "\n"; // nice regex m8
 
 export const getUrlFromSearchResults = (html, domain, exMsg) => {
   const regex = new RegExp(`<a href="(https://${domain}.*?)"`);
   return regexMatchOrThrow(regex, html, exMsg)[0];
 };
 
-export const cleanupLine = line => {
-  return (
-    line
-    .replace(REMOVE_HTML_TAG_REGEX, '')
-    .replace(REMOVE_NEWLINE_REGEX, '')
-  );
+export const cleanupLine = (line) => {
+  return unescape(line)
+    .replace(REMOVE_HTML_TAG_REGEX, "")
+    .replace(REMOVE_NEWLINE_REGEX, "")
+    .replace("&" + "#" + "x27;", "'");
 };
