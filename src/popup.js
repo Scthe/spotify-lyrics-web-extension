@@ -1,13 +1,11 @@
-import { h, render } from "preact";
-import { useState, useCallback } from "preact/hooks";
+import { h, render } from 'preact';
+import { useState, useCallback } from 'preact/hooks';
 /** @jsx h */
-import { LYRICS_PROVIDERS, useLyrics } from "./lyricsProvider";
-import { Toolbar, SongHeader, LyricsViewer } from "./components";
-import { useYoutubeSong } from "./youtube";
-import { useSpotifySong } from "./spotify";
-import { get } from "./utils";
-
-// TODO change icon to one similar to chrome
+import { LYRICS_PROVIDERS, useLyrics } from './lyricsProvider';
+import { Toolbar, SongHeader, LyricsViewer } from './components';
+import { useYoutubeSong } from './youtube';
+import { useSpotifySong } from './spotify';
+import { get, getSongName } from './utils';
 
 /** Holds which lyrics provider we use e.g. genius or musixmatch */
 const useLyricsProviderState = () => {
@@ -47,7 +45,7 @@ const Popup = () => {
   }
 
   const finalError = songData.error || lyricsData.error;
-  console.log("<Popup>", {
+  console.log('<Popup>', {
     spotifySong: spotifySongData.data,
     youTubeSong: youTubeSongData.data,
     spotifyLyricsData,
@@ -67,16 +65,17 @@ const Popup = () => {
         providers={LYRICS_PROVIDERS.map((lp) => ({
           ...lp,
           isActive: isActiveProvider(lp),
-          lyricsPageUrl: get(lyricsData.data, "url"), // hacky, but only used if isActive
+          lyricsPageUrl: get(lyricsData.data, 'url'), // hacky, but only used if isActive
         }))}
       />
       <SongHeader song={songData} isYouTubeMode={isYouTubeMode} />
       <LyricsViewer
-        lyricLines={get(lyricsData.data, "lines")}
+        key={getSongName(songData?.data || {})}
+        lyricLines={get(lyricsData.data, 'lines')}
         error={finalError}
       />
     </div>
   );
 };
 
-render(<Popup />, document.getElementById("app"));
+render(<Popup />, document.getElementById('app'));

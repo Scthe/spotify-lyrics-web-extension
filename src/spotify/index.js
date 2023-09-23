@@ -2,10 +2,10 @@ import { h, Component } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 const browser = require('webextension-polyfill');
 /** @jsx h */
-import {SPOTIFY_API, requestWithSpotifyAuthRetry} from './utils';
+import { SPOTIFY_API, requestWithSpotifyAuthRetry } from './utils';
 
-const adaptSpotifySong = resp => {
-  const {name, artists, album} = resp.item;
+const adaptSpotifySong = (resp) => {
+  const { name, artists, album } = resp.item;
   return {
     title: name,
     artist: artists[0].name,
@@ -20,9 +20,11 @@ export const useSpotifySong = () => {
 
   useEffect(async () => {
     try {
-      const resp = await requestWithSpotifyAuthRetry(SPOTIFY_API.currentlyPlaying);
+      const resp = await requestWithSpotifyAuthRetry(
+        SPOTIFY_API.currentlyPlaying
+      );
       const song = adaptSpotifySong(resp);
-      console.log('[SPOTIFY API OK]', {resp, song});
+      console.log('[SPOTIFY API OK]', { resp, song });
       setData(song);
       setLoading(false);
     } catch (e) {

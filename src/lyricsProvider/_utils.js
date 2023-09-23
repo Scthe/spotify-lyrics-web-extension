@@ -11,7 +11,7 @@ export const fetchTextOrThrow = async (url, exMsg) => {
 };
 
 export const createGoogleSearchUrl = (phraseArr) => {
-  const q1 = phraseArr.join(" ").trim();
+  const q1 = phraseArr.join(' ').trim();
   const query = encodeURIComponent(q1);
   return `https://www.google.com/search?q=${query}`;
 };
@@ -49,16 +49,39 @@ export const regexMatchOrThrow = (regex, text, exMsg) => {
 //////////////////////
 
 const REMOVE_HTML_TAG_REGEX = /<\/?[^>]*>/g;
-const REMOVE_NEWLINE_REGEX = "\n"; // nice regex m8
+const REMOVE_NEWLINE_REGEX = '\n'; // nice regex m8
 
 export const getUrlFromSearchResults = (html, domain, exMsg) => {
-  const regex = new RegExp(`<a href="(https://${domain}.*?)"`);
+  const regex = new RegExp(`href="(https:\/\/${domain}.*?)"`);
   return regexMatchOrThrow(regex, html, exMsg)[0];
 };
 
 export const cleanupLine = (line) => {
-  return unescape(line)
-    .replace(REMOVE_HTML_TAG_REGEX, "")
-    .replace(REMOVE_NEWLINE_REGEX, "")
-    .replace("&" + "#" + "x27;", "'");
+  // some special cases I noticed:
+  const htmlEntities = {
+    // e.g. "Sultans of swing"
+    "'": ['&#x27;', '&#39;'],
+    // e.g. "Buffalo Springfield - For What It's Worth 1967"
+    '"': ['&quot;', '&#34;'],
+    // probably also:
+    '&': ['&amp;', '&#38;'],
+    '<': ['&lt;', '&#60;'],
+    '>': ['&gt;'],
+    ' ': ['&nbsp;', '&#160;'],
+    '-': ['&ndash;', '&mdash;'],
+  };
+
+  let cleanedLine = unescape(line)
+    .replaceAll(REMOVE_HTML_TAG_REGEX, '')
+    .replace(REMOVE_NEWLINE_REGEX, '');
+
+  // could create regexes. Whatever
+  Object.keys(htmlEntities).forEach((entity) => {
+    const entityNumbers = htmlEntities[entity];
+    entityNumbers.forEach((entityNumber) => {
+      cleanedLine = cleanedLine.replaceAll(entityNumber, entity);
+    });
+  });
+
+  return cleanedLine.trim();
 };
