@@ -1,10 +1,9 @@
-import { h, Component } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
-const browser = require('webextension-polyfill');
-/** @jsx h */
+import { useState } from 'preact/hooks';
 import { SPOTIFY_API, requestWithSpotifyAuthRetry } from './utils';
+import { Song, SongDetectState } from '../types';
+import { isError, useEffectOnce } from '../utils';
 
-const adaptSpotifySong = (resp) => {
+const adaptSpotifySong = (resp: unknown): Song => {
   const { name, artists, album } = resp.item;
   return {
     title: name,
@@ -13,15 +12,16 @@ const adaptSpotifySong = (resp) => {
   };
 };
 
-export const useSpotifySong = () => {
+export const useSpotifySong = (): SongDetectState => {
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(undefined);
-  const [error, setError] = useState(undefined);
+  const [data, setData] = useState<Song | undefined>(undefined);
+  const [error, setError] = useState<string | undefined>(undefined);
 
-  useEffect(async () => {
+  useEffectOnce(async () => {
     try {
       const resp = await requestWithSpotifyAuthRetry(
-        SPOTIFY_API.currentlyPlaying
+        SPOTIFY_API.currentlyPlaying,
+        {}
       );
       const song = adaptSpotifySong(resp);
       console.log('[SPOTIFY API OK]', { resp, song });
@@ -29,10 +29,10 @@ export const useSpotifySong = () => {
       setLoading(false);
     } catch (e) {
       console.log('[SPOTIFY API ERR]', e);
-      setError(e);
+      setError(isError(e) ? e.message : String(e));
       setLoading(false);
     }
-  }, []);
+  });
 
   return { loading, data, error };
 };

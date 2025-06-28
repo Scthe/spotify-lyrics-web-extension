@@ -1,4 +1,5 @@
-import { ICON_MUSIXMATCH } from 'components';
+import { ICON_MUSIXMATCH } from '../components';
+import { LyricsProvider, Song } from '../types';
 import { getSongName } from '../utils';
 import {
   searchGoogle,
@@ -6,11 +7,13 @@ import {
   fetchTextOrThrow,
   regexMatchOrThrow,
   cleanupLine,
+  encodeSongAsSearchParam,
 } from './_utils';
 
-const createSearchUrl = ({ artist, title }) => {
-  const q1 = `${artist} ${title}`.trim();
-  const query = encodeURIComponent(q1);
+// TODO  not working?
+
+const createSearchUrl = (song: Song) => {
+  const query = encodeSongAsSearchParam(song);
   return `https://www.musixmatch.com/search/${query}`;
 };
 
@@ -18,7 +21,7 @@ const createSearchUrl = ({ artist, title }) => {
 // https://stackoverflow.com/questions/1068280/javascript-regex-multiline-flag-doesnt-work
 const WRAPPER_REGEX = /<p class="mxm-lyrics__content ">([.\S\s]*?)<\/p>/gm;
 
-const search = async ({ artist = '', title }) => {
+const search = async ({ artist = '', title }: Song) => {
   const songDbgName = getSongName({ artist, title });
 
   const googleHtml = await searchGoogle(
@@ -31,7 +34,7 @@ const search = async ({ artist = '', title }) => {
     googleHtml,
     'www.musixmatch.com',
     `No musixmatch page found for '${songDbgName}'`
-  )[0];
+  );
 
   const html = await fetchTextOrThrow(
     pageUrl,
@@ -56,4 +59,4 @@ export default {
   logo: ICON_MUSIXMATCH,
   searchFn: search,
   createSearchUrl,
-};
+} satisfies LyricsProvider;

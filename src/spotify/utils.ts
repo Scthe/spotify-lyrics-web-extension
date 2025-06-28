@@ -1,8 +1,10 @@
-const browser = require('webextension-polyfill');
-
 import * as auth from './auth';
 import config from '../config';
 import { getPersistentStorageAsync, setPersistentStorageAsync } from '../utils';
+import Browser from 'webextension-polyfill';
+import { SpotifyApiFunction, SpotifyAuthToken } from '../types';
+
+const browser: Browser.Browser = require('webextension-polyfill');
 
 const STORAGE_KEY = 'spotify_token';
 const RETRY_COUNT = 3;
@@ -13,6 +15,7 @@ const AUTH_OPTS = {
   redirectUri: browser.identity.getRedirectURL(),
   scope: 'user-read-currently-playing',
 };
+export type AuthOpts = typeof AUTH_OPTS;
 
 // console.log('AUTH_OPTS: ', AUTH_OPTS);
 console.warn(
@@ -25,14 +28,14 @@ console.warn(
 
 /** Declare spotify API method */
 const declareSpotifyApiMethod =
-  (method, path) =>
-  async (authOpts, fetchOpts = {}) => {
+  (method: string, path: `/${string}`): SpotifyApiFunction =>
+  async (authToken: { access_token: string }, fetchOpts: RequestInit) => {
     const resp = await fetch(`https://api.spotify.com/v1${path}`, {
       ...fetchOpts,
       headers: new Headers({
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${authOpts.access_token}`,
+        Authorization: `Bearer ${authToken.access_token}`,
         ...fetchOpts.headers,
       }),
       method,
@@ -59,12 +62,16 @@ export const SPOTIFY_API = {
 /////////////////////////////
 /////////////////////////////
 
-const getTokenFromStorageAsync = () => getPersistentStorageAsync(STORAGE_KEY);
-const storeTokenInStorageAsync = (newToken) =>
+const getTokenFromStorageAsync = (): Promise<SpotifyAuthToken | undefined> =>
+  getPersistentStorageAsync(STORAGE_KEY);
+
+const storeTokenInStorageAsync = (newToken: SpotifyAuthToken) =>
   setPersistentStorageAsync(STORAGE_KEY, newToken);
 
 /** Get authorization token, either from local storage or from Spotify API */
-const loadInitalToken = async (forceRenew = false) => {
+const loadInitalToken = async (
+  forceRenew = false
+): Promise<SpotifyAuthToken> => {
   const storageToken = await getTokenFromStorageAsync();
 
   if (!forceRenew && storageToken) {
@@ -79,7 +86,9 @@ const loadInitalToken = async (forceRenew = false) => {
 };
 
 /** Use auth.refresh_token to get new credentials */
-const refreshToken = async (oldToken) => {
+const refreshToken = async (
+  oldToken: SpotifyAuthToken
+): Promise<SpotifyAuthToken> => {
   let newToken = await auth.refreshToken(AUTH_OPTS, oldToken.refresh_token);
 
   // the fact we execute this line means that auth.refreshToken did not threw and went ok
@@ -90,8 +99,11 @@ const refreshToken = async (oldToken) => {
 };
 
 /** Call with auto retries */
-export const requestWithSpotifyAuthRetry = async (spotifyApiFn, fetchArgs) => {
-  let lastErr;
+export const requestWithSpotifyAuthRetry = async (
+  spotifyApiFn: SpotifyApiFunction,
+  fetchArgs: RequestInit
+) => {
+  let lastErr: unknown = undefined;
   let oauthToken = await loadInitalToken();
   // console.log(`Will do API calls with init token:`, oauthToken);
 

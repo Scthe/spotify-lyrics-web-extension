@@ -1,29 +1,30 @@
-import { h, render } from 'preact';
-import { useState, useCallback } from 'preact/hooks';
-/** @jsx h */
+import { render } from 'preact';
+import { useState } from 'preact/hooks';
 import { LYRICS_PROVIDERS, useLyrics } from './lyricsProvider';
 import { Toolbar, SongHeader, LyricsViewer } from './components';
 import { useYoutubeSong } from './youtube';
 import { useSpotifySong } from './spotify';
-import { get, getSongName } from './utils';
+import { getSongName } from './utils';
+import { LyricsProvider } from './types';
+
+const DEFAULT_LYRICS_PROVIDER = LYRICS_PROVIDERS[0];
 
 /** Holds which lyrics provider we use e.g. genius or musixmatch */
 const useLyricsProviderState = () => {
-  const [current, setCurrent] = useState(LYRICS_PROVIDERS[0].name);
-  const lyricsProvider = LYRICS_PROVIDERS.find((p) => p.name === current);
+  const [current, setCurrent] = useState(DEFAULT_LYRICS_PROVIDER.name);
+  const lyricsProvider =
+    LYRICS_PROVIDERS.find((p) => p.name === current) ?? DEFAULT_LYRICS_PROVIDER;
 
-  const setLyricsProvider = useCallback((lp) => setCurrent(lp.name), []);
-  const isActiveProvider = useCallback(
-    (lp) => lp.name === lyricsProvider.name,
-    [lyricsProvider.name]
-  );
-
-  return [lyricsProvider, setLyricsProvider, isActiveProvider];
+  return {
+    lyricsProvider,
+    setLyricsProvider: (lp: LyricsProvider) => setCurrent(lp.name),
+    isActiveProvider: (lp: LyricsProvider) => lp.name === lyricsProvider.name,
+  };
 };
 
 const Popup = () => {
   const [isYouTubeMode, setYouTubeMode] = useState(false);
-  const [lyricsProvider, setLyricsProvider, isActiveProvider] =
+  const { lyricsProvider, setLyricsProvider, isActiveProvider } =
     useLyricsProviderState();
 
   // spotify
@@ -35,14 +36,8 @@ const Popup = () => {
   const youTubeLyricsData = useLyrics(lyricsProvider, youTubeSongData.data);
 
   // decide on song to display based on current mode
-  let lyricsData, songData;
-  if (isYouTubeMode) {
-    songData = youTubeSongData;
-    lyricsData = youTubeLyricsData;
-  } else {
-    songData = spotifySongData;
-    lyricsData = spotifyLyricsData;
-  }
+  const songData = isYouTubeMode ? youTubeSongData : spotifySongData;
+  const lyricsData = isYouTubeMode ? youTubeLyricsData : spotifyLyricsData;
 
   const finalError = songData.error || lyricsData.error;
   console.log('<Popup>', {
@@ -65,17 +60,17 @@ const Popup = () => {
         providers={LYRICS_PROVIDERS.map((lp) => ({
           ...lp,
           isActive: isActiveProvider(lp),
-          lyricsPageUrl: get(lyricsData.data, 'url'), // hacky, but only used if isActive
+          lyricsPageUrl: lyricsData.data?.url, // hacky, but only used if isActive
         }))}
       />
       <SongHeader song={songData} isYouTubeMode={isYouTubeMode} />
       <LyricsViewer
-        key={getSongName(songData?.data || {})}
-        lyricLines={get(lyricsData.data, 'lines')}
+        key={getSongName(songData?.data)}
+        lyricLines={lyricsData.data?.lines}
         error={finalError}
       />
     </div>
   );
 };
 
-render(<Popup />, document.getElementById('app'));
+render(<Popup />, document.getElementById('app')!);

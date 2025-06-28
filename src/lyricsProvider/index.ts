@@ -10,22 +10,34 @@
 //
 // thonk..
 
-import { h, Component } from 'preact';
-import { useState, useReducer, useEffect } from 'preact/hooks';
-/** @jsx h */
+import { useReducer, useEffect } from 'preact/hooks';
 import { getSongName } from '../utils';
 import genius from './genius';
 import musixmatch from './musixmatch';
+import { LyricsProvider, LyricsSearchResult, Song } from '../types';
 
-export const LYRICS_PROVIDERS = [genius, musixmatch];
+export const LYRICS_PROVIDERS: LyricsProvider[] = [genius, musixmatch];
 
-const DEFAULT_LYRICS_STATE = {
+export type LyricsProviderState = {
+  loading: boolean;
+  error: string | undefined;
+  data: LyricsSearchResult | undefined;
+};
+type State = Record<LyricsProvider['name'], LyricsProviderState>;
+
+const DEFAULT_LYRICS_STATE: LyricsProviderState = {
   loading: true,
   data: undefined,
   error: undefined,
 };
 
-const reducer = (state, actionObj) => {
+type ActionBase<T> = T & { providerName: string; song: Song };
+type Action =
+  | ActionBase<{ action: 'reset' }>
+  | ActionBase<{ action: 'success'; data: LyricsSearchResult }>
+  | ActionBase<{ action: 'error' }>;
+
+const reducer = (state: State, actionObj: Action) => {
   const { action, providerName, song } = actionObj;
   console.log(`[Lyrics ${action}] ${providerName} '${getSongName(song)}'`);
 
@@ -58,14 +70,17 @@ const reducer = (state, actionObj) => {
   }
 };
 
-export const useLyrics = (currentLyricsProvider, song = {}) => {
-  const { artist, title } = song;
+export const useLyrics = (
+  currentLyricsProvider: LyricsProvider,
+  song: Song | undefined
+) => {
+  const { artist, title } = song ?? {};
 
   const [lyricsCache, dispatch] = useReducer(reducer, {});
   // console.log(`[useLyrics] ${currentLyricsProvider.name} '${artist}-${title}'`);
 
   useEffect(() => {
-    if (title == null) {
+    if (!song || title == null) {
       return;
     }
 

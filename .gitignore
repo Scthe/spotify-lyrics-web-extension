@@ -3,6 +3,7 @@
 yarn.lock
 extension/dist
 node_modules
+.yarn/install-state.gz
 
 # some private utils etc.
 reference

@@ -190,14 +190,17 @@ button {
   padding: 5px 5px 2px 5px;
   background-color: hsl(0, 0%, 16%);
   border-bottom: 1px solid #353535;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .toolbar__left {
-  float: left;
 }
 
 .toolbar__right {
-  float: right;
+  display: flex;
+  gap: 10px;
 }
 
 .toolbar_btn {
@@ -205,7 +208,6 @@ button {
   width: 25px;
   height: 25px;
   display: inline-block;
-  margin-left: 10px;
   border-radius: 3px;
   cursor: pointer;
   transition: opacity 0.3s;
@@ -220,20 +222,19 @@ button {
   opacity: 0.9;
 }
 
-.toolbar_btn:first-child {
-  margin-left: 0px;
-}
-
-/* https://genius.com/discussions/143413-New-logo
-   https://www.dropbox.com/s/bcpdyro4u6cf2dl/Genius_VisualIdentityGuidelines.pdf?dl=0
-   Genius does not have branding page. How tf is it still a company?!
-*/
+/* You tube */
 .toolbar_btn.toolbar_youtube {
-  max-height: 25px;
   padding: 0;
 }
 .toolbar_btn.toolbar_youtube svg {
-  height: 25px;
+  width: 35px !important;
+  height: 25px !important;
+}
+
+/* Lyrics providers on the right */
+.toolbar_btn svg {
+  width: 18px !important;
+  height: 18px !important;
 }
 .toolbar_google {
   background: #4885ed;
@@ -308,4 +309,13 @@ button {
   100% {
     transform: scale(0);
   }
+}
+
+/*
+ * SvgIcon
+ */
+.SvgIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

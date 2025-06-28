@@ -1,27 +1,33 @@
-import { h, Component } from 'preact';
-/** @jsx h */
 import { classes } from '../utils';
 import { Loader } from './index';
+import { LyricsLine, SongDetectState } from '../types';
 
-export const LyricsViewer = ({ error, lyricLines }) => {
+interface Props {
+  error: SongDetectState['error'];
+  lyricLines: Array<LyricsLine> | undefined | null;
+}
+
+export const LyricsViewer = ({ error, lyricLines }: Props) => {
   if (error) {
     return (
-      <div class="lyrics-viewer--err">
-        <span class="lyrics-viewer--err-msg">{error}</span>
+      <div className="lyrics-viewer--err">
+        <span className="lyrics-viewer--err-msg">
+          {error || 'Something went wrong'}
+        </span>
       </div>
     );
   }
 
   if (lyricLines == null) {
     return (
-      <div class="lyrics-viewer--loading">
+      <div className="lyrics-viewer--loading">
         <Loader />
       </div>
     );
   }
 
   return (
-    <div class="lyrics-viewer">
+    <div className="lyrics-viewer">
       {lyricLines.map((line) => (
         <LyricLine line={line} />
       ))}
@@ -29,14 +35,15 @@ export const LyricsViewer = ({ error, lyricLines }) => {
   );
 };
 
-const LyricLine = ({ line = '' }) => {
+const LyricLine = ({ line = '' }: { line: LyricsLine }) => {
   const clazz = classes(
     'lyrics-line',
     isMetaLine(line) ? 'lyrics-line-meta' : ''
   );
-  return <span class={clazz}>{line}</span>;
+  return <span className={clazz}>{line}</span>;
 };
 
+// TODO enforce new line before
 /** e.g. "[Verse 1]" on genius.com. Musixmatch sometimes has "(...)", but probably community contributed */
 const isMetaLine = (line = '') => {
   if (line == null || typeof line !== 'string') {

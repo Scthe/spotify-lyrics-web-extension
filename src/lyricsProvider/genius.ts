@@ -1,4 +1,5 @@
-import { ICON_GENIUS } from 'components';
+import { ICON_GENIUS } from '../components/svg-icon';
+import { LyricsProvider, Song } from '../types';
 import { getSongName } from '../utils';
 import {
   searchGoogle,
@@ -6,11 +7,11 @@ import {
   fetchTextOrThrow,
   regexMatchOrThrow,
   cleanupLine,
+  encodeSongAsSearchParam,
 } from './_utils';
 
-const createSearchUrl = ({ artist, title }) => {
-  const q1 = `${artist} ${title}`.trim();
-  const query = encodeURIComponent(q1);
+const createSearchUrl = (song: Song) => {
+  const query = encodeSongAsSearchParam(song);
   return `https://genius.com/search?q=${query}`;
 };
 
@@ -18,7 +19,7 @@ const createSearchUrl = ({ artist, title }) => {
 // https://stackoverflow.com/questions/1068280/javascript-regex-multiline-flag-doesnt-work
 const WRAPPER_REGEX = /data-lyrics-container.*?>([.\S\s]*?)<\/div/gm;
 
-const search = async ({ artist = '', title }) => {
+const search = async ({ artist = '', title }: Song) => {
   const songDbgName = getSongName({ artist, title });
 
   const googleHtml = await searchGoogle(
@@ -30,7 +31,7 @@ const search = async ({ artist = '', title }) => {
     googleHtml,
     'genius.com',
     `No genius page found for '${songDbgName}'`
-  )[0];
+  );
 
   const geniusHtml = await fetchTextOrThrow(
     geniusUrl,
@@ -56,4 +57,4 @@ export default {
   logo: ICON_GENIUS,
   searchFn: search,
   createSearchUrl,
-};
+} satisfies LyricsProvider;
