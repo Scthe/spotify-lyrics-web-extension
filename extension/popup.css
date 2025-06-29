@@ -138,6 +138,7 @@ button {
 /** e.g. "[Verse 1]" on genius.com */
 .lyrics-line-meta {
   color: hsl(182, 73%, 71%);
+  text-transform: capitalize;
 }
 
 /*

@@ -37,7 +37,8 @@ async function startDev() {
   console.log(`Using entry points:`, config.entryPoints);
   const ctx = await esbuild.context(config);
   await ctx.watch();
-  console.log(`Done. Watching for code changes...`);
+  console.log(`Done. Go to (firefox): about:debugging#addons`);
+  console.log(`Watching for code changes...`);
 
   // let { host, port } = await ctx.serve({
   // servedir: 'build',

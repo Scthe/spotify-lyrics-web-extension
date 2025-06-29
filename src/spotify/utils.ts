@@ -75,10 +75,10 @@ const loadInitalToken = async (
   const storageToken = await getTokenFromStorageAsync();
 
   if (!forceRenew && storageToken) {
-    console.log('[spotify] Found token in storage');
+    console.log('[Spotify] Found token in storage');
     return storageToken;
   } else {
-    console.log('[spotify] Token not found in storage... requesting new');
+    console.log('[Spotify] Token not found in storage... requesting new');
     const newToken = await auth.doNewTokenRequest(AUTH_OPTS);
     await storeTokenInStorageAsync(newToken);
     return newToken;

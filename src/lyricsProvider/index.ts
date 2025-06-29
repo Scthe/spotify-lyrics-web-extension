@@ -1,3 +1,9 @@
+import { useReducer, useEffect } from 'preact/hooks';
+import { getSongName } from '../utils';
+import genius from './genius';
+import musixmatch from './musixmatch';
+import { LyricsProvider, LyricsSearchResult, Song } from '../types';
+
 // I could use APIs like a normal human being.
 //
 // ...
@@ -9,12 +15,6 @@
 // ...
 //
 // thonk..
-
-import { useReducer, useEffect } from 'preact/hooks';
-import { getSongName } from '../utils';
-import genius from './genius';
-import musixmatch from './musixmatch';
-import { LyricsProvider, LyricsSearchResult, Song } from '../types';
 
 export const LYRICS_PROVIDERS: LyricsProvider[] = [genius, musixmatch];
 
@@ -39,7 +39,7 @@ type Action =
 
 const reducer = (state: State, actionObj: Action) => {
   const { action, providerName, song } = actionObj;
-  console.log(`[Lyrics ${action}] ${providerName} '${getSongName(song)}'`);
+  console.log(`[${providerName} ${action}] '${getSongName(song)}'`);
 
   switch (action) {
     case 'reset':

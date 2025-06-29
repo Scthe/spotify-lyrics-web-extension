@@ -12,7 +12,14 @@ export interface SongDetectState {
   error: string | undefined;
 }
 
-export type LyricsLine = string;
+export type LyricsLineWithMeta = { text: string; meta: boolean };
+export type LyricsLine = string | LyricsLineWithMeta;
+export const isMetaLine = (line: LyricsLine): line is LyricsLineWithMeta =>
+  !!line && typeof line === 'object';
+export const getLyricsLineText = (line: LyricsLine) => {
+  if (isMetaLine(line)) return line.text;
+  return typeof line === 'string' ? line : ''; // just in case
+};
 
 export type LyricsSearchResult = {
   lines: LyricsLine[];

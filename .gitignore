@@ -1,6 +1,5 @@
 # Ignore build artifacts and other files.
 .DS_Store
-yarn.lock
 extension/dist
 node_modules
 .yarn/install-state.gz
@@ -17,3 +16,6 @@ gh-images/raw
 
 # build artifact
 spotify-lyrics-popup.zip
+
+# test files to not hammer external APIs
+src/lyricsProvider/__snapshots__/*.html

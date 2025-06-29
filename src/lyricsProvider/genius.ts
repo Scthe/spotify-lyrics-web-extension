@@ -1,13 +1,13 @@
+import { parse } from 'node-html-parser';
 import { ICON_GENIUS } from '../components/svg-icon';
-import { LyricsProvider, Song } from '../types';
+import { LyricsLine, LyricsProvider, Song } from '../types';
 import { getSongName } from '../utils';
 import {
   searchGoogle,
   getUrlFromSearchResults,
   fetchTextOrThrow,
-  regexMatchOrThrow,
-  cleanupLine,
   encodeSongAsSearchParam,
+  parseLinesFromHtml,
 } from './_utils';
 
 const createSearchUrl = (song: Song) => {
@@ -15,9 +15,19 @@ const createSearchUrl = (song: Song) => {
   return `https://genius.com/search?q=${query}`;
 };
 
-// NOTE: we use \S\s as substitute for /s (dotall flag)
-// https://stackoverflow.com/questions/1068280/javascript-regex-multiline-flag-doesnt-work
-const WRAPPER_REGEX = /data-lyrics-container.*?>([.\S\s]*?)<\/div/gm;
+export const parseGeniusPage = (htmlText: string): LyricsLine[] => {
+  const root = parse(htmlText);
+  // remove song meta E.g. "5 Contributors"
+  root
+    .querySelectorAll('[data-exclude-from-selection]')
+    .forEach((node) => node.remove());
+
+  // find HTML nodes
+  const lyricContainers = root.querySelectorAll('[data-lyrics-container]');
+  return parseLinesFromHtml(lyricContainers, (el) =>
+    el.textContent.split('\n')
+  );
+};
 
 const search = async ({ artist = '', title }: Song) => {
   const songDbgName = getSongName({ artist, title });
@@ -27,28 +37,21 @@ const search = async ({ artist = '', title }: Song) => {
     `Google not working, send help ('${songDbgName}' btw.)`
   );
 
-  const geniusUrl = getUrlFromSearchResults(
+  const pageUrl = getUrlFromSearchResults(
     googleHtml,
     'genius.com',
     `No genius page found for '${songDbgName}'`
   );
 
+  console.log(`Genius lyrics page:`, pageUrl);
   const geniusHtml = await fetchTextOrThrow(
-    geniusUrl,
+    pageUrl,
     `Could not fetch genius page for '${songDbgName}'`
   );
 
-  const rawText = regexMatchOrThrow(
-    WRAPPER_REGEX,
-    geniusHtml,
-    `Could not parse genius page for lyrics for '${songDbgName}' (${geniusUrl})`
-  ).join('');
-
-  const rawLines = rawText.split(/<br\/?>/gm);
-
   return {
-    lines: rawLines.map(cleanupLine),
-    url: geniusUrl,
+    url: pageUrl,
+    lines: parseGeniusPage(geniusHtml),
   };
 };
 

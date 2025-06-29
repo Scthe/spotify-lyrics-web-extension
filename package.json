@@ -4,25 +4,34 @@
   "license": "MIT",
   "description": "View lyrics for current Spotify/YouTube song",
   "version": "1.0.0",
+  "repository": "github:Scthe/spotify-lyrics-web-extension",
+  "homepage": "https://github.com/Scthe/spotify-lyrics-web-extension",
   "main": "extension/manifest.json",
   "scripts": {
     "clean": "rimraf -g ./extension/dist/* || true",
     "predev": "yarn clean",
     "dev": "node scripts/esbuild-script.js --dev",
     "prebuild": "yarn clean && node scripts/esbuild-script.js",
-    "build": "node scripts/pack-extension.js"
+    "build": "node scripts/pack-extension.js",
+    "ts:dry": "yarn tsc",
+    "test": "vitest --run",
+    "test:watch": "vitest --watch"
   },
   "devDependencies": {
+    "@types/mock-require": "^3",
     "@types/node": "^22.15.21",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
     "@types/webextension-polyfill": "^0.12.3",
     "archiver": "^4.0.1",
     "esbuild": "^0.25.4",
+    "mock-require": "^3.0.3",
     "rimraf": "^6.0.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
+    "node-html-parser": "^7.0.1",
     "preact": "^10.26.7",
     "webextension-polyfill": "^0.6.0"
   }

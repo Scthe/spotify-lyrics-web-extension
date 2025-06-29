@@ -24,11 +24,11 @@ export const useSpotifySong = (): SongDetectState => {
         {}
       );
       const song = adaptSpotifySong(resp);
-      console.log('[SPOTIFY API OK]', { resp, song });
+      console.log('[Spotify song OK]', { resp, song });
       setData(song);
       setLoading(false);
     } catch (e) {
-      console.log('[SPOTIFY API ERR]', e);
+      console.log('[Spotify song ERROR]', e);
       setError(isError(e) ? e.message : String(e));
       setLoading(false);
     }

@@ -39,11 +39,12 @@ export const SongHeader = ({ song, isYouTubeMode }: Props) => {
 
   const title = song?.data?.title || '';
   const artist = song.data?.artist || '';
+  /*
   console.log('<SongHeader>', {
     isYouTubeMode,
     title,
     artist,
-  });
+  });*/
 
   return (
     <div className={className}>

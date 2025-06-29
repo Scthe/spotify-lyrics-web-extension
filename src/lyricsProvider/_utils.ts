@@ -1,9 +1,9 @@
+import { HTMLElement } from 'node-html-parser';
+import { getLyricsLineText, LyricsLine, Song } from '../types';
+
 //////////////////////
 /// fetch and requests
 //////////////////////
-
-import { Song } from '../types';
-import { typesafeObjectKeys } from '../utils';
 
 export const fetchTextOrThrow = async (url: string, exMsg: string) => {
   const resp = await fetch(url);
@@ -20,7 +20,7 @@ export const createGoogleSearchUrl = (phraseArr: string[]) => {
 };
 
 export const searchGoogle = (phraseArr: string[], exMsg: string) => {
-  // console.log(`Google search for '${phrase}'`);
+  console.log(`Google search for:`, phraseArr);
   return fetchTextOrThrow(createGoogleSearchUrl(phraseArr), exMsg);
 };
 
@@ -61,9 +61,6 @@ export const regexMatchOrThrow = (
 /// html parse
 //////////////////////
 
-const REMOVE_HTML_TAG_REGEX = /<\/?[^>]*>/g;
-const REMOVE_NEWLINE_REGEX = '\n'; // nice regex m8
-
 export const getUrlFromSearchResults = (
   html: string,
   domain: string,
@@ -77,32 +74,73 @@ export const getUrlFromSearchResults = (
   return firstMatch[0];
 };
 
-export const cleanupLine = (line: string) => {
-  // some special cases I noticed:
-  const htmlEntities = {
-    // e.g. "Sultans of swing"
-    "'": ['&#x27;', '&#39;'],
-    // e.g. "Buffalo Springfield - For What It's Worth 1967"
-    '"': ['&quot;', '&#34;'],
-    // probably also:
-    '&': ['&amp;', '&#38;'],
-    '<': ['&lt;', '&#60;'],
-    '>': ['&gt;'],
-    ' ': ['&nbsp;', '&#160;'],
-    '-': ['&ndash;', '&mdash;'],
-  };
+export const removeDuplicatedEmptyLines = <LineT extends string | LyricsLine>(
+  originalLines: LineT[]
+): LineT[] => {
+  let lastLineWasEmpty = true;
+  const result: LineT[] = [];
 
-  let cleanedLine = unescape(line)
-    .replaceAll(REMOVE_HTML_TAG_REGEX, '')
-    .replace(REMOVE_NEWLINE_REGEX, '');
+  originalLines.forEach((line) => {
+    const lineText = getLyricsLineText(line).trim();
+    if (lineText.length) {
+      lastLineWasEmpty = false;
+      result.push(line);
+    } else {
+      if (!lastLineWasEmpty) result.push(line);
+      lastLineWasEmpty = true;
+    }
+  });
 
-  // could create regexes. Whatever
-  typesafeObjectKeys(htmlEntities).forEach((entity) => {
-    const entityNumbers = htmlEntities[entity];
-    entityNumbers.forEach((entityNumber) => {
-      cleanedLine = cleanedLine.replaceAll(entityNumber, entity);
+  while (result.length > 0 && getLyricsLineText(result.at(-1)!).length === 0) {
+    result.pop();
+  }
+
+  return result;
+};
+
+/** e.g. "[Verse 1]" on genius.com. Musixmatch sometimes has "(...)", but probably community contributed */
+const isMetaLine = (line: string) => {
+  if (line == null || typeof line !== 'string') return false;
+  line = line.trim();
+  return line.startsWith('[') && line.endsWith(']');
+};
+
+export const parseLinesFromHtml = (
+  lyricContainers: HTMLElement[],
+  extractTextNodes: (el: HTMLElement) => Array<string | string[]>
+) => {
+  const resultLines: LyricsLine[] = [];
+  // return lyricContainers.map((e) => e?.textContent).flat();
+  lyricContainers.forEach((lyricFragment) => {
+    resultLines.push('', ''); // indicate fragment border
+    // console.log(
+    // '--- FRAGMENT:',
+    // lyricFragment.textContent.trimStart().substring(0, 20).trim()
+    // );
+
+    // console.log(lyricFragment.textContent);
+    // let lines = lyricFragment.textContent.split('\n');
+    let lines = extractTextNodes(lyricFragment).flat();
+    lines.forEach((rawLine) => {
+      let line = rawLine.trim();
+      // console.log(`LINE: '${line}'`);
+
+      // HTML whitespace quirks...
+      if (rawLine.startsWith(' ') && resultLines.length > 0) {
+        const prevLine = resultLines.pop();
+        line = `${prevLine} ${line}`;
+      }
+
+      // append
+      line = line.trim();
+      if (isMetaLine(line)) {
+        resultLines.push(''); // ensure empty line before
+        resultLines.push({ meta: true, text: line });
+      } else {
+        resultLines.push(line);
+      }
     });
   });
 
-  return cleanedLine.trim();
+  return removeDuplicatedEmptyLines(resultLines);
 };

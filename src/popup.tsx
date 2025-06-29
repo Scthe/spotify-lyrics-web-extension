@@ -40,6 +40,7 @@ const Popup = () => {
   const lyricsData = isYouTubeMode ? youTubeLyricsData : spotifyLyricsData;
 
   const finalError = songData.error || lyricsData.error;
+  /*
   console.log('<Popup>', {
     spotifySong: spotifySongData.data,
     youTubeSong: youTubeSongData.data,
@@ -48,7 +49,7 @@ const Popup = () => {
     songData,
     lyricsData,
     finalError,
-  });
+  });*/
 
   return (
     <div>

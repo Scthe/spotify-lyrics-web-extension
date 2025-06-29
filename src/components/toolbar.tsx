@@ -105,7 +105,7 @@ export const Toolbar = ({
   setLyricsProvider,
   providers,
 }: Props) => {
-  console.log('<Toolbar>', { song, isYouTubeMode, providers });
+  // console.log('<Toolbar>', { song, isYouTubeMode, providers });
 
   const onGoogleClick = useCallback(() => {
     const googleUrl = createGoogleSearchUrl([
