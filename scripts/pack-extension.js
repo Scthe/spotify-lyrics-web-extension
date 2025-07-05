@@ -8,22 +8,26 @@ var archiver = require('archiver');
 var IN_DIR = 'extension/';
 var OUT_FILE = 'spotify-lyrics-popup.zip';
 
-var outPath = path.join(__dirname, OUT_FILE);
+var outPath = path.join(__dirname, '..', OUT_FILE);
 var output = fs.createWriteStream(outPath);
 var archive = archiver('zip', {
-  zlib: { level: 9 } // Sets the compression level.
+  zlib: { level: 9 }, // Sets the compression level.
 });
 
-output.on('close', function() {
+output.on('close', function () {
   console.log(archive.pointer() + ' total bytes');
-  console.log('The file \'' + OUT_FILE + '\' was succesfully created. Ready to upload to the extension store!');
+  console.log(
+    "The file '" +
+      OUT_FILE +
+      "' was succesfully created. Ready to upload to the extension store!"
+  );
 });
 
-output.on('end', function() {
+output.on('end', function () {
   console.log('Data has been drained');
 });
 
-archive.on('warning', function(err) {
+archive.on('warning', function (err) {
   if (err.code === 'ENOENT') {
     // ?
   } else {
@@ -31,7 +35,7 @@ archive.on('warning', function(err) {
   }
 });
 
-archive.on('error', function(err) {
+archive.on('error', function (err) {
   throw err;
 });
 
