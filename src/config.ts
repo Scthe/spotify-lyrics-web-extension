@@ -1,6 +1,12 @@
+// feel free to comment out this message once done
+console.log(
+  `%cHello, I'm "src/config.ts". Please make sure to update me with your Spotify API key!`,
+  'font-size: 30px'
+);
+
 export default {
   spotify: {
-    clientId: '46e81e8da9c34199addf13f15a49717d',
-    clientSecret: '587dff9f0ae14a42ac9e49d4edc8cf9c',
+    clientId: 'xxxxxxxxxxxxxxxxxxxxx',
+    clientSecret: 'xxxxxxxxxxxxxxxxxxxxx',
   },
 };

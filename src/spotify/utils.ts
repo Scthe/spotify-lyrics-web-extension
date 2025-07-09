@@ -18,9 +18,10 @@ const AUTH_OPTS = {
 export type AuthOpts = typeof AUTH_OPTS;
 
 // console.log('AUTH_OPTS: ', AUTH_OPTS);
-console.warn(
-  `Will do spotify auth with redirect url '${AUTH_OPTS.redirectUri}'. ` +
-    'Make sure it is allowed in spotify dev app settings (https://developer.spotify.com/dashboard/applications).'
+console.log(
+  `%cWill do Spotify auth with redirect url '${AUTH_OPTS.redirectUri}'. ` +
+    'Make sure it is allowed in Spotify dev app settings (https://developer.spotify.com/dashboard/applications).',
+  'font-size: 30px; background:rgba(62, 148, 41, 0.64)'
 );
 
 /////////////////////////////
